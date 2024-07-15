@@ -156,7 +156,7 @@ def train(args):
 
     trainer.fit(args)
 
-    test_dataloader = strategy.setup_dataloader(test_dataset, args.micro_train_batch_size, True, False, eval_dataset.collate_fn, sampler = 'use_none')
+    test_dataloader = strategy.setup_dataloader(test_dataset, args.micro_train_batch_size, True, False, eval_dataset.collate_fn)
     local_rank = dist.get_rank()
     os.makedirs(os.path.join(args.save_path, 'results/'), exist_ok=True)
     output_fname = os.path.join(os.path.join(args.save_path, 'results/'), f"predict_{local_rank}.json")

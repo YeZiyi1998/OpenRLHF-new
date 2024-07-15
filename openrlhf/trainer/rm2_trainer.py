@@ -274,7 +274,7 @@ class RewardModelTrainer2(ABC):
         )
         self.model_list.eval()
         with torch.no_grad():
-            acc1, acc2 = 0, 0
+            acc = 0
             loss_sum, s1_loss_sum, s2_loss_sum, c_loss_sum = 0, 0, 0, 0
             if 's2' in self.args.mode:
                 mode = 's2'
@@ -339,15 +339,14 @@ class RewardModelTrainer2(ABC):
             desc="Test stage...",
             disable=not self.strategy.is_rank_0(),
         )
-        all_info_dict_mode = {'loss':[], 'acc1':[], 'acc2':[],'tags':[], 'test_id': [], 's1_loss':[], 's2_loss':[], 'c_loss':[]}
+        all_info_dict_mode = {'loss':[], 'acc':[], 'tags':[], 'test_id': [], }
         self.model_list.eval()
         if 's2' in self.args.mode:
             mode = 's2'
         else:
             mode = 's1'
         with torch.no_grad():
-            acc1, acc2 = 0, 0
-            acc_list1, acc_list2 = [], []
+            acc, acc_list = 0, []
             tags = []
             loss_sum = 0
             for prompt_ids, prompt_mask, gen_ids, gen_mask, chosens, extra, meta_infos, prompt_ids_len in eval_dataloader:
@@ -360,14 +359,14 @@ class RewardModelTrainer2(ABC):
                 all_info_dict = copy.deepcopy(all_info_dict_mode)
                 if all_values1 is not None:
                     acc_bool1 = (torch.abs(all_values1 - chosens) < 0.5).int()
-                    acc1 += acc_bool1.float().mean().item() 
-                    acc_list1.extend(acc_bool1.float().flatten().tolist())
-                    all_info_dict['acc1'] = (acc_bool1.float().flatten().tolist())
+                    acc += acc_bool1.float().mean().item() 
+                    acc_list.extend(acc_bool1.float().flatten().tolist())
+                    all_info_dict['acc'] = (acc_bool1.float().flatten().tolist())
                 if all_values2 is not None:
                     acc_bool2 = (torch.abs(all_values2 - chosens) < 0.5).int()
-                    acc2 += acc_bool2.float().mean().item()
-                    acc_list2.extend(acc_bool2.float().flatten().tolist())
-                    all_info_dict['acc2'] = (acc_bool2.float().flatten().tolist())
+                    acc += acc_bool2.float().mean().item()
+                    acc_list.extend(acc_bool2.float().flatten().tolist())
+                    all_info_dict['acc'] = (acc_bool2.float().flatten().tolist())
 
                 tags.extend([meta["tag"] for meta in meta_infos])
 
@@ -377,40 +376,34 @@ class RewardModelTrainer2(ABC):
                 all_info_dict['tag'] = ([meta["tag"] for meta in meta_infos])
                 all_info_dict['test_id'] = ([meta["test_id"] for meta in meta_infos])
                 all_info_dict['loss'] = (loss.detach().cpu().tolist()) 
-                all_info_dict['s1_loss'] = s1_loss
-                all_info_dict['s2_loss'] = s2_loss
-                all_info_dict['c_loss'] = c_loss
 
                 output_file.write(json.dumps(all_info_dict,) + '\n')
                 output_file.flush()
                
 
             self.strategy.print(f"Test Data Size: {eval_dataloader.__len__()}")
-            acc_mean1 = acc1 / eval_dataloader.__len__()
-            acc_mean2 = acc2 / eval_dataloader.__len__()
+            acc_mean = acc / eval_dataloader.__len__()
             loss_mean = loss_sum / eval_dataloader.__len__()
 
             bar_dict = {
                 f"eval_loss": loss_mean,
-                f"acc_mean1": acc_mean1,
-                f"acc_mean2": acc_mean2
+                f"acc_mean": acc_mean,
             }
             self.strategy.print(bar_dict)
             from collections import defaultdict
-            for idx, acc in enumerate([acc1, acc2]):
-                self.strategy.print(f"===========Detail ACC {idx}==========")
-                acc_dict = defaultdict(list)
-                overall_acc = []
-                for tag, acc in zip(tags, acc_list1):
-                    acc_dict[tag].append(acc)
-                    overall_acc.append(acc)
+            self.strategy.print(f"===========Detail ACC==========")
+            acc_dict = defaultdict(list)
+            overall_acc = []
+            for tag, acc in zip(tags, acc_list):
+                acc_dict[tag].append(acc)
+                overall_acc.append(acc)
 
-                sort_keys = sorted(list(acc_dict.keys()))
-                for tag in sort_keys:
-                    accs = acc_dict[tag]
-                    self.strategy.print(f"{tag}:\t\t{np.mean(accs):.4f}\t\tdata length:{len(accs)}")
+            sort_keys = sorted(list(acc_dict.keys()))
+            for tag in sort_keys:
+                accs = acc_dict[tag]
+                self.strategy.print(f"{tag}:\t\t{np.mean(accs):.4f}\t\tdata length:{len(accs)}")
 
-                self.strategy.print(f"Overall:\t\t{np.mean(overall_acc):.4f}")
+            self.strategy.print(f"Overall:\t\t{np.mean(overall_acc):.4f}")
 
     def concatenated_forward(self, model, chosen_ids, c_mask, reject_ids, r_mask, return_all = False):
         """Run the given model on the given batch of inputs, concatenating the chosen and rejected inputs together.
