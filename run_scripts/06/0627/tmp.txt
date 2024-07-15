@@ -1,0 +1,320 @@
+[2024-06-26 21:09:37,228] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[2024-06-26 21:09:39,209] [INFO] [runner.py:463:main] Using IP address of 10.64.24.96 for node 10.64.24.96
+[2024-06-26 21:09:39,210] [INFO] [runner.py:568:main] cmd = /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python -u -m deepspeed.launcher.launch --world_info=eyIxMC42NC4yNC45NiI6IFswLCAxLCAyLCAzLCA0LCA1LCA2LCA3XX0= --master_addr=10.64.24.96 --master_port=29500 --enable_each_rank_log=None ../../examples/batch_inference.py --eval_task generate --pretrain /data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/ --bf16 --max_len 6400 --dataset /data2/rlhf/yzy/data/rm_train/train_20240425-v2-guide/sample --dataset_probs 1.0 --max_samples 100000000 --zero_stage 0 --tp_size 4 --micro_batch_size 2 --flash_attn --output_path /data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_INF_0625/output.jsonl
+[2024-06-26 21:09:43,399] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[2024-06-26 21:09:44,981] [INFO] [launch.py:139:main] 0 NCCL_VERSION=2.19.3
+[2024-06-26 21:09:44,981] [INFO] [launch.py:146:main] WORLD INFO DICT: {'10.64.24.96': [0, 1, 2, 3, 4, 5, 6, 7]}
+[2024-06-26 21:09:44,981] [INFO] [launch.py:152:main] nnodes=1, num_local_procs=8, node_rank=0
+[2024-06-26 21:09:44,981] [INFO] [launch.py:163:main] global_rank_mapping=defaultdict(<class 'list'>, {'10.64.24.96': [0, 1, 2, 3, 4, 5, 6, 7]})
+[2024-06-26 21:09:44,981] [INFO] [launch.py:164:main] dist_world_size=8
+[2024-06-26 21:09:44,981] [INFO] [launch.py:168:main] Setting CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+[2024-06-26 21:09:44,981] [INFO] [launch.py:256:main] process 386869 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/batch_inference.py', '--local_rank=0', '--eval_task', 'generate', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_len', '6400', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2-guide/sample', '--dataset_probs', '1.0', '--max_samples', '100000000', '--zero_stage', '0', '--tp_size', '4', '--micro_batch_size', '2', '--flash_attn', '--output_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_INF_0625/output.jsonl']
+[2024-06-26 21:09:44,982] [INFO] [launch.py:256:main] process 386870 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/batch_inference.py', '--local_rank=1', '--eval_task', 'generate', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_len', '6400', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2-guide/sample', '--dataset_probs', '1.0', '--max_samples', '100000000', '--zero_stage', '0', '--tp_size', '4', '--micro_batch_size', '2', '--flash_attn', '--output_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_INF_0625/output.jsonl']
+[2024-06-26 21:09:44,982] [INFO] [launch.py:256:main] process 386871 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/batch_inference.py', '--local_rank=2', '--eval_task', 'generate', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_len', '6400', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2-guide/sample', '--dataset_probs', '1.0', '--max_samples', '100000000', '--zero_stage', '0', '--tp_size', '4', '--micro_batch_size', '2', '--flash_attn', '--output_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_INF_0625/output.jsonl']
+[2024-06-26 21:09:44,982] [INFO] [launch.py:256:main] process 386872 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/batch_inference.py', '--local_rank=3', '--eval_task', 'generate', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_len', '6400', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2-guide/sample', '--dataset_probs', '1.0', '--max_samples', '100000000', '--zero_stage', '0', '--tp_size', '4', '--micro_batch_size', '2', '--flash_attn', '--output_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_INF_0625/output.jsonl']
+[2024-06-26 21:09:44,982] [INFO] [launch.py:256:main] process 386873 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/batch_inference.py', '--local_rank=4', '--eval_task', 'generate', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_len', '6400', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2-guide/sample', '--dataset_probs', '1.0', '--max_samples', '100000000', '--zero_stage', '0', '--tp_size', '4', '--micro_batch_size', '2', '--flash_attn', '--output_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_INF_0625/output.jsonl']
+[2024-06-26 21:09:44,983] [INFO] [launch.py:256:main] process 386874 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/batch_inference.py', '--local_rank=5', '--eval_task', 'generate', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_len', '6400', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2-guide/sample', '--dataset_probs', '1.0', '--max_samples', '100000000', '--zero_stage', '0', '--tp_size', '4', '--micro_batch_size', '2', '--flash_attn', '--output_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_INF_0625/output.jsonl']
+[2024-06-26 21:09:44,983] [INFO] [launch.py:256:main] process 386875 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/batch_inference.py', '--local_rank=6', '--eval_task', 'generate', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_len', '6400', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2-guide/sample', '--dataset_probs', '1.0', '--max_samples', '100000000', '--zero_stage', '0', '--tp_size', '4', '--micro_batch_size', '2', '--flash_attn', '--output_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_INF_0625/output.jsonl']
+[2024-06-26 21:09:44,983] [INFO] [launch.py:256:main] process 386876 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/batch_inference.py', '--local_rank=7', '--eval_task', 'generate', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_len', '6400', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2-guide/sample', '--dataset_probs', '1.0', '--max_samples', '100000000', '--zero_stage', '0', '--tp_size', '4', '--micro_batch_size', '2', '--flash_attn', '--output_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_INF_0625/output.jsonl']
+[2024-06-26 21:09:53,327] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[2024-06-26 21:09:53,569] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2024-06-26 21:09:53,711] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[2024-06-26 21:09:53,792] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[2024-06-26 21:09:53,957] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[2024-06-26 21:09:53,979] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2024-06-26 21:09:54,099] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2024-06-26 21:09:54,130] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+[2024-06-26 21:09:55,468] [INFO] [comm.py:637:init_distributed] cdb=None
+[2024-06-26 21:09:55,468] [INFO] [comm.py:668:init_distributed] Initializing TorchBackend in DeepSpeed with backend nccl
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+[2024-06-26 21:09:56,330] [INFO] [comm.py:637:init_distributed] cdb=None
+[2024-06-26 21:09:56,382] [INFO] [comm.py:637:init_distributed] cdb=None
+[2024-06-26 21:09:56,390] [INFO] [comm.py:637:init_distributed] cdb=None
+[2024-06-26 21:09:56,454] [INFO] [comm.py:637:init_distributed] cdb=None
+[2024-06-26 21:09:56,462] [INFO] [comm.py:637:init_distributed] cdb=None
+[2024-06-26 21:09:56,493] [INFO] [comm.py:637:init_distributed] cdb=None
+[2024-06-26 21:09:56,493] [INFO] [comm.py:637:init_distributed] cdb=None
+You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:03<00:10,  3.55s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:07<00:07,  3.72s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:06<00:19,  6.61s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:06<00:19,  6.37s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:06<00:20,  6.70s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:06<00:19,  6.58s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:06<00:18,  6.28s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:05<00:17,  5.93s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:06<00:18,  6.08s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:10<00:03,  3.67s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:14<00:00,  3.46s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:14<00:00,  3.54s/it]
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+Loading checkpoint shards:  50%|█████     | 2/4 [00:12<00:12,  6.16s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:13<00:13,  6.51s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:12<00:12,  6.39s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:13<00:13,  6.60s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:12<00:12,  6.47s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:12<00:12,  6.16s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:12<00:12,  6.27s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:17<00:05,  5.51s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:18<00:06,  6.24s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:18<00:06,  6.31s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:18<00:06,  6.13s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:18<00:06,  6.13s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:19<00:06,  6.37s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:19<00:06,  6.44s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:20<00:00,  4.44s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:20<00:00,  5.01s/it]
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+Loading checkpoint shards: 100%|██████████| 4/4 [00:22<00:00,  5.30s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:22<00:00,  5.70s/it]
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+Loading checkpoint shards: 100%|██████████| 4/4 [00:23<00:00,  5.68s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:23<00:00,  5.85s/it]
+Loading checkpoint shards: 100%|██████████| 4/4 [00:23<00:00,  5.70s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:23<00:00,  5.86s/it]
+Loading checkpoint shards: 100%|██████████| 4/4 [00:24<00:00,  5.89s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:24<00:00,  6.13s/it]
+Loading checkpoint shards: 100%|██████████| 4/4 [00:24<00:00,  5.84s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:24<00:00,  6.05s/it]
+Loading checkpoint shards: 100%|██████████| 4/4 [00:24<00:00,  5.84s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:24<00:00,  6.02s/it]
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+[2024-06-26 21:10:28,222] [INFO] [logging.py:96:log_dist] [Rank 0] DeepSpeed info: version=0.14.2, git-hash=unknown, git-branch=unknown
+[2024-06-26 21:10:28,223] [INFO] [comm.py:662:init_distributed] Distributed backend already initialized
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+[2024-06-26 21:10:47,199] [INFO] [logging.py:96:log_dist] [Rank 0] DeepSpeed Flops Profiler Enabled: False
+[2024-06-26 21:10:47,200] [INFO] [logging.py:96:log_dist] [Rank 0] Creating BF16 optimizer
+[2024-06-26 21:10:47,316] [INFO] [utils.py:779:see_memory_usage] begin bf16_optimizer
+[2024-06-26 21:10:47,317] [INFO] [utils.py:780:see_memory_usage] MA 14.67 GB         Max_MA 14.67 GB         CA 14.78 GB         Max_CA 15 GB 
+[2024-06-26 21:10:47,317] [INFO] [utils.py:787:see_memory_usage] CPU Virtual Memory:  used = 154.5 GB, percent = 7.7%
+[2024-06-26 21:10:47,369] [INFO] [utils.py:779:see_memory_usage] end bf16_optimizer
+[2024-06-26 21:10:47,370] [INFO] [utils.py:780:see_memory_usage] MA 14.67 GB         Max_MA 14.67 GB         CA 14.78 GB         Max_CA 15 GB 
+[2024-06-26 21:10:47,370] [INFO] [utils.py:787:see_memory_usage] CPU Virtual Memory:  used = 154.5 GB, percent = 7.7%
+[2024-06-26 21:10:47,370] [INFO] [config.py:996:print] DeepSpeedEngine configuration:
+[2024-06-26 21:10:47,370] [INFO] [config.py:1000:print]   activation_checkpointing_config  {
+    "partition_activations": false, 
+    "contiguous_memory_optimization": false, 
+    "cpu_checkpointing": false, 
+    "number_checkpoints": null, 
+    "synchronize_checkpoint_boundary": false, 
+    "profile": false
+}
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   aio_config ................... {'block_size': 1048576, 'queue_depth': 8, 'thread_count': 1, 'single_submit': False, 'overlap_events': True}
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   amp_enabled .................. False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   amp_params ................... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   autotuning_config ............ {
+    "enabled": false, 
+    "start_step": null, 
+    "end_step": null, 
+    "metric_path": null, 
+    "arg_mappings": null, 
+    "metric": "throughput", 
+    "model_info": null, 
+    "results_dir": "autotuning_results", 
+    "exps_dir": "autotuning_exps", 
+    "overwrite": true, 
+    "fast": true, 
+    "start_profile_step": 3, 
+    "end_profile_step": 5, 
+    "tuner_type": "gridsearch", 
+    "tuner_early_stopping": 5, 
+    "tuner_num_trials": 50, 
+    "model_info_path": null, 
+    "mp_size": 1, 
+    "max_train_batch_size": null, 
+    "min_train_batch_size": 1, 
+    "max_train_micro_batch_size_per_gpu": 1.024000e+03, 
+    "min_train_micro_batch_size_per_gpu": 1, 
+    "num_tuning_micro_batch_sizes": 3
+}
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   bfloat16_enabled ............. True
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   bfloat16_immediate_grad_update  False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   checkpoint_parallel_write_pipeline  False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   checkpoint_tag_validation_enabled  True
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   checkpoint_tag_validation_fail  False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   comms_config ................. <deepspeed.comm.config.DeepSpeedCommsConfig object at 0x7fa6b0db5750>
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   communication_data_type ...... None
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   compile_config ............... enabled=False backend='inductor' kwargs={}
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   compression_config ........... {'weight_quantization': {'shared_parameters': {'enabled': False, 'quantizer_kernel': False, 'schedule_offset': 0, 'quantize_groups': 1, 'quantize_verbose': False, 'quantization_type': 'symmetric', 'quantize_weight_in_forward': False, 'rounding': 'nearest', 'fp16_mixed_quantize': False, 'quantize_change_ratio': 0.001}, 'different_groups': {}}, 'activation_quantization': {'shared_parameters': {'enabled': False, 'quantization_type': 'symmetric', 'range_calibration': 'dynamic', 'schedule_offset': 1000}, 'different_groups': {}}, 'sparse_pruning': {'shared_parameters': {'enabled': False, 'method': 'l1', 'schedule_offset': 1000}, 'different_groups': {}}, 'row_pruning': {'shared_parameters': {'enabled': False, 'method': 'l1', 'schedule_offset': 1000}, 'different_groups': {}}, 'head_pruning': {'shared_parameters': {'enabled': False, 'method': 'topk', 'schedule_offset': 1000}, 'different_groups': {}}, 'channel_pruning': {'shared_parameters': {'enabled': False, 'method': 'l1', 'schedule_offset': 1000}, 'different_groups': {}}, 'layer_reduction': {'enabled': False}}
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   curriculum_enabled_legacy .... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   curriculum_params_legacy ..... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   data_efficiency_config ....... {'enabled': False, 'seed': 1234, 'data_sampling': {'enabled': False, 'num_epochs': 1000, 'num_workers': 0, 'curriculum_learning': {'enabled': False}}, 'data_routing': {'enabled': False, 'random_ltd': {'enabled': False, 'layer_token_lr_schedule': {'enabled': False}}}}
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   data_efficiency_enabled ...... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   dataloader_drop_last ......... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   disable_allgather ............ False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   dump_state ................... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   dynamic_loss_scale_args ...... None
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   eigenvalue_enabled ........... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   eigenvalue_gas_boundary_resolution  1
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   eigenvalue_layer_name ........ bert.encoder.layer
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   eigenvalue_layer_num ......... 0
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   eigenvalue_max_iter .......... 100
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   eigenvalue_stability ......... 1e-06
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   eigenvalue_tol ............... 0.01
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   eigenvalue_verbose ........... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   elasticity_enabled ........... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   flops_profiler_config ........ {
+    "enabled": false, 
+    "recompute_fwd_factor": 0.0, 
+    "profile_step": 1, 
+    "module_depth": -1, 
+    "top_modules": 1, 
+    "detailed": true, 
+    "output_file": null
+}
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   fp16_auto_cast ............... None
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   fp16_enabled ................. False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   fp16_master_weights_and_gradients  False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   global_rank .................. 0
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   grad_accum_dtype ............. None
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   gradient_accumulation_steps .. 16
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   gradient_clipping ............ 1.0
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   gradient_predivide_factor .... 1.0
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   graph_harvesting ............. False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   hybrid_engine ................ enabled=False max_out_tokens=512 inference_tp_size=1 release_inference_cache=False pin_parameters=True tp_gather_partition_size=8
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   initial_dynamic_scale ........ 1
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   load_universal_checkpoint .... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   loss_scale ................... 1.0
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   memory_breakdown ............. False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   mics_hierarchial_params_gather  False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   mics_shard_size .............. -1
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   monitor_config ............... tensorboard=TensorBoardConfig(enabled=False, output_path='', job_name='DeepSpeedJobName') wandb=WandbConfig(enabled=False, group=None, team=None, project='deepspeed') csv_monitor=CSVConfig(enabled=False, output_path='', job_name='DeepSpeedJobName') enabled=False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   nebula_config ................ {
+    "enabled": false, 
+    "persistent_storage_path": null, 
+    "persistent_time_interval": 100, 
+    "num_of_version_in_retention": 2, 
+    "enable_nebula_load": true, 
+    "load_path": null
+}
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   optimizer_legacy_fusion ...... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   optimizer_name ............... None
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   optimizer_params ............. None
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   pipeline ..................... {'stages': 'auto', 'partition': 'best', 'seed_layers': False, 'activation_checkpoint_interval': 0, 'pipe_partitioned': True, 'grad_partitioned': True}
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   pld_enabled .................. False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   pld_params ................... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   prescale_gradients ........... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   scheduler_name ............... None
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   scheduler_params ............. None
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   seq_parallel_communication_data_type  torch.float32
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   sparse_attention ............. None
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   sparse_gradients_enabled ..... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   steps_per_print .............. 100
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   train_batch_size ............. 128
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   train_micro_batch_size_per_gpu  1
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   use_data_before_expert_parallel_  False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   use_node_local_storage ....... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   wall_clock_breakdown ......... False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   weight_quantization_config ... None
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   world_size ................... 8
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   zero_allow_untested_optimizer  False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   zero_config .................. stage=0 contiguous_gradients=True reduce_scatter=True reduce_bucket_size=500,000,000 use_multi_rank_bucket_allreduce=True allgather_partitions=True allgather_bucket_size=500,000,000 overlap_comm=False load_from_fp32_weights=True elastic_checkpoint=False offload_param=DeepSpeedZeroOffloadParamConfig(device='none', nvme_path=None, buffer_count=5, buffer_size=100,000,000, max_in_cpu=1,000,000,000, pin_memory=True) offload_optimizer=None sub_group_size=1,000,000,000 cpu_offload_param=None cpu_offload_use_pin_memory=None cpu_offload=None prefetch_bucket_size=50,000,000 param_persistence_threshold=100,000 model_persistence_threshold=sys.maxsize max_live_parameters=1,000,000,000 max_reuse_distance=1,000,000,000 gather_16bit_weights_on_model_save=False stage3_gather_fp16_weights_on_model_save=False ignore_unused_parameters=True legacy_stage1=False round_robin_gradients=False zero_hpz_partition_size=1 zero_quantized_weights=False zero_quantized_nontrainable_weights=False zero_quantized_gradients=False mics_shard_size=-1 mics_hierarchical_params_gather=False memory_efficient_linear=True pipeline_loading_checkpoint=False override_module_apply=True
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   zero_enabled ................. False
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   zero_force_ds_cpu_optimizer .. True
+[2024-06-26 21:10:47,371] [INFO] [config.py:1000:print]   zero_optimization_stage ...... 0
+[2024-06-26 21:10:47,372] [INFO] [config.py:986:print_user_config]   json = {
+    "steps_per_print": 100, 
+    "zero_optimization": {
+        "stage": 0, 
+        "stage3_param_persistence_threshold": "auto", 
+        "offload_param": {
+            "device": "none", 
+            "pin_memory": true
+        }
+    }, 
+    "bf16": {
+        "enabled": true
+    }, 
+    "gradient_clipping": 1.0, 
+    "prescale_gradients": false, 
+    "wall_clock_breakdown": false, 
+    "train_micro_batch_size_per_gpu": 1, 
+    "train_batch_size": 128
+}
+  0%|          | 0/20 [00:00<?, ?it/s]100%|██████████| 20/20 [00:00<00:00, 646.64it/s]
+  0%|          | 0/2 [00:00<?, ?it/s]/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/generation/configuration_utils.py:563: UserWarning: `num_beams` is set to 1. However, `early_stopping` is set to `True` -- this flag is only used in beam-based generation modes. You should set `num_beams>1` or unset `early_stopping`.
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/generation/configuration_utils.py:563: UserWarning: `num_beams` is set to 1. However, `early_stopping` is set to `True` -- this flag is only used in beam-based generation modes. You should set `num_beams>1` or unset `early_stopping`.
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/generation/configuration_utils.py:563: UserWarning: `num_beams` is set to 1. However, `early_stopping` is set to `True` -- this flag is only used in beam-based generation modes. You should set `num_beams>1` or unset `early_stopping`.
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/generation/configuration_utils.py:563: UserWarning: `num_beams` is set to 1. However, `early_stopping` is set to `True` -- this flag is only used in beam-based generation modes. You should set `num_beams>1` or unset `early_stopping`.
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/generation/configuration_utils.py:563: UserWarning: `num_beams` is set to 1. However, `early_stopping` is set to `True` -- this flag is only used in beam-based generation modes. You should set `num_beams>1` or unset `early_stopping`.
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/generation/configuration_utils.py:563: UserWarning: `num_beams` is set to 1. However, `early_stopping` is set to `True` -- this flag is only used in beam-based generation modes. You should set `num_beams>1` or unset `early_stopping`.
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/generation/configuration_utils.py:563: UserWarning: `num_beams` is set to 1. However, `early_stopping` is set to `True` -- this flag is only used in beam-based generation modes. You should set `num_beams>1` or unset `early_stopping`.
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/generation/configuration_utils.py:563: UserWarning: `num_beams` is set to 1. However, `early_stopping` is set to `True` -- this flag is only used in beam-based generation modes. You should set `num_beams>1` or unset `early_stopping`.
+  warnings.warn(
+ 50%|█████     | 1/2 [00:17<00:17, 17.50s/it]100%|██████████| 2/2 [00:24<00:00, 11.57s/it]100%|██████████| 2/2 [00:24<00:00, 12.46s/it]
+Invalid or missing '--eval_task' argument. Please specify either 'generate' or 'rm'.
+Invalid or missing '--eval_task' argument. Please specify either 'generate' or 'rm'.Invalid or missing '--eval_task' argument. Please specify either 'generate' or 'rm'.Invalid or missing '--eval_task' argument. Please specify either 'generate' or 'rm'.
+
+
+Invalid or missing '--eval_task' argument. Please specify either 'generate' or 'rm'.Invalid or missing '--eval_task' argument. Please specify either 'generate' or 'rm'.
+
+Invalid or missing '--eval_task' argument. Please specify either 'generate' or 'rm'.
+Invalid or missing '--eval_task' argument. Please specify either 'generate' or 'rm'.
+[2024-06-26 21:11:14,003] [INFO] [launch.py:351:main] Process 386875 exits successfully.
+[2024-06-26 21:11:15,004] [INFO] [launch.py:351:main] Process 386869 exits successfully.
+[2024-06-26 21:11:15,004] [INFO] [launch.py:351:main] Process 386870 exits successfully.
+[2024-06-26 21:11:15,004] [INFO] [launch.py:351:main] Process 386874 exits successfully.
+[2024-06-26 21:11:15,004] [INFO] [launch.py:351:main] Process 386871 exits successfully.
+[2024-06-26 21:11:15,004] [INFO] [launch.py:351:main] Process 386876 exits successfully.
+[2024-06-26 21:11:15,004] [INFO] [launch.py:351:main] Process 386872 exits successfully.
+[2024-06-26 21:11:16,004] [INFO] [launch.py:351:main] Process 386873 exits successfully.

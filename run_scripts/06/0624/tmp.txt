@@ -1,0 +1,385 @@
++ unset https_proxy
++ unset http_proxy
++ export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
++ PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
++ WANDB_TOKENS=a77607626908409e45afa2ca225cf179e9a316fc
++ wandb login --relogin a77607626908409e45afa2ca225cf179e9a316fc
+wandb: Appending key for api.wandb.ai to your netrc file: /root/.netrc
++ EXP_NAME=Qwen_SFT_0624_105
++ MODEL=/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/
++ DATA=/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train
++ EVAL_DATA=/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test
++ save_path=/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105
++ ckpt_path=/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints
++ BATCH_SIZE_PER_GPU=2
++ LR=5e-6
++ hostfile=./hostfile_rm2
+++ wc -l
++ MACHINE_SIZE=2
++ WORLD_SIZE=16
++ GLOBAL_BATCH_SIZE=32
++ mkdir -p /data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105
++ read -r -d '' training_commands
++ deepspeed --hostfile=./hostfile_rm2 ../../examples/train_sft.py --save_path /data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105 --logging_steps 10 --micro_train_batch_size 2 --micro_eval_batch_size 1 --train_batch_size 32 --pretrain /data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/ --bf16 --max_epochs 1 --max_len 6400 --zero_stage 3 --eval_steps 500 --save_steps 1000 --learning_rate 5e-6 --dataset /data2/rlhf/yzy/data/rm_train/train_20240425-v2/train --eval_dataset /data2/rlhf/yzy/data/rm_train/train_20240425-v2/test --dataset_probs 1.0 --flash_attn --max_samples -1 --ckpt_path /data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints --gradient_checkpointing --use_wandb a77607626908409e45afa2ca225cf179e9a316fc --wandb_run_name Qwen_SFT_0624_105 --wandb_project rl0624
++ tee /data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/train_qwen.log
+[2024-06-25 15:17:54,302] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[2024-06-25 15:17:59,371] [INFO] [runner.py:463:main] Using IP address of 10.11.37.105 for node 10.64.8.105
+[2024-06-25 15:17:59,373] [INFO] [multinode_runner.py:81:get_cmd] Running on the following workers: 10.64.8.105,10.64.8.106
+[2024-06-25 15:17:59,373] [INFO] [runner.py:568:main] cmd = pdsh -S -f 1024 -w 10.64.8.105,10.64.8.106 export NCCL_VERSION=2.19.3; export PYTHONIOENCODING=utf-8; export PYTHONPATH=/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0624;  cd /data2/rlhf/yzy/OpenRLHF-new/run_scripts/0624; /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python -u -m deepspeed.launcher.launch --world_info=eyIxMC42NC44LjEwNSI6IFswLCAxLCAyLCAzLCA0LCA1LCA2LCA3XSwgIjEwLjY0LjguMTA2IjogWzAsIDEsIDIsIDMsIDQsIDUsIDYsIDddfQ== --node_rank=%n --master_addr=10.11.37.105 --master_port=29500 ../../examples/train_sft.py --save_path /data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105 --logging_steps 10 --micro_train_batch_size 2 --micro_eval_batch_size 1 --train_batch_size 32 --pretrain /data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/ --bf16 --max_epochs 1 --max_len 6400 --zero_stage 3 --eval_steps 500 --save_steps 1000 --learning_rate 5e-6 --dataset /data2/rlhf/yzy/data/rm_train/train_20240425-v2/train --eval_dataset /data2/rlhf/yzy/data/rm_train/train_20240425-v2/test --dataset_probs 1.0 --flash_attn --max_samples -1 --ckpt_path /data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints --gradient_checkpointing --use_wandb a77607626908409e45afa2ca225cf179e9a316fc --wandb_run_name Qwen_SFT_0624_105 --wandb_project rl0624
+10.64.8.105: [2024-06-25 15:18:03,359] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.105: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.105: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.105: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.105: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.105: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.105: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.105: [2024-06-25 15:18:05,013] [INFO] [launch.py:139:main] 0 NCCL_VERSION=2.19.3
+10.64.8.105: [2024-06-25 15:18:05,013] [INFO] [launch.py:146:main] WORLD INFO DICT: {'10.64.8.105': [0, 1, 2, 3, 4, 5, 6, 7], '10.64.8.106': [0, 1, 2, 3, 4, 5, 6, 7]}
+10.64.8.105: [2024-06-25 15:18:05,013] [INFO] [launch.py:152:main] nnodes=2, num_local_procs=8, node_rank=0
+10.64.8.105: [2024-06-25 15:18:05,014] [INFO] [launch.py:163:main] global_rank_mapping=defaultdict(<class 'list'>, {'10.64.8.105': [0, 1, 2, 3, 4, 5, 6, 7], '10.64.8.106': [8, 9, 10, 11, 12, 13, 14, 15]})
+10.64.8.105: [2024-06-25 15:18:05,014] [INFO] [launch.py:164:main] dist_world_size=16
+10.64.8.105: [2024-06-25 15:18:05,014] [INFO] [launch.py:168:main] Setting CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+10.64.8.105: [2024-06-25 15:18:05,014] [INFO] [launch.py:256:main] process 558514 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=0', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.105: [2024-06-25 15:18:05,014] [INFO] [launch.py:256:main] process 558515 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=1', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.105: [2024-06-25 15:18:05,015] [INFO] [launch.py:256:main] process 558516 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=2', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.105: [2024-06-25 15:18:05,015] [INFO] [launch.py:256:main] process 558517 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=3', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.105: [2024-06-25 15:18:05,015] [INFO] [launch.py:256:main] process 558518 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=4', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.105: [2024-06-25 15:18:05,016] [INFO] [launch.py:256:main] process 558519 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=5', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.105: [2024-06-25 15:18:05,016] [INFO] [launch.py:256:main] process 558520 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=6', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.105: [2024-06-25 15:18:05,016] [INFO] [launch.py:256:main] process 558521 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=7', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.106: [2024-06-25 15:18:09,855] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.106: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.106: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.106: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.106: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.106: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.106: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.106: [2024-06-25 15:18:13,206] [INFO] [launch.py:139:main] 1 NCCL_VERSION=2.19.3
+10.64.8.106: [2024-06-25 15:18:13,206] [INFO] [launch.py:146:main] WORLD INFO DICT: {'10.64.8.105': [0, 1, 2, 3, 4, 5, 6, 7], '10.64.8.106': [0, 1, 2, 3, 4, 5, 6, 7]}
+10.64.8.106: [2024-06-25 15:18:13,206] [INFO] [launch.py:152:main] nnodes=2, num_local_procs=8, node_rank=1
+10.64.8.106: [2024-06-25 15:18:13,206] [INFO] [launch.py:163:main] global_rank_mapping=defaultdict(<class 'list'>, {'10.64.8.105': [0, 1, 2, 3, 4, 5, 6, 7], '10.64.8.106': [8, 9, 10, 11, 12, 13, 14, 15]})
+10.64.8.106: [2024-06-25 15:18:13,206] [INFO] [launch.py:164:main] dist_world_size=16
+10.64.8.106: [2024-06-25 15:18:13,206] [INFO] [launch.py:168:main] Setting CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+10.64.8.106: [2024-06-25 15:18:13,206] [INFO] [launch.py:256:main] process 491163 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=0', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.106: [2024-06-25 15:18:13,207] [INFO] [launch.py:256:main] process 491164 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=1', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.106: [2024-06-25 15:18:13,207] [INFO] [launch.py:256:main] process 491165 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=2', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.106: [2024-06-25 15:18:13,208] [INFO] [launch.py:256:main] process 491166 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=3', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.106: [2024-06-25 15:18:13,208] [INFO] [launch.py:256:main] process 491167 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=4', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.106: [2024-06-25 15:18:13,208] [INFO] [launch.py:256:main] process 491168 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=5', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.106: [2024-06-25 15:18:13,209] [INFO] [launch.py:256:main] process 491169 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=6', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.106: [2024-06-25 15:18:13,209] [INFO] [launch.py:256:main] process 491170 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/train_sft.py', '--local_rank=7', '--save_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105', '--logging_steps', '10', '--micro_train_batch_size', '2', '--micro_eval_batch_size', '1', '--train_batch_size', '32', '--pretrain', '/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/', '--bf16', '--max_epochs', '1', '--max_len', '6400', '--zero_stage', '3', '--eval_steps', '500', '--save_steps', '1000', '--learning_rate', '5e-6', '--dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/train', '--eval_dataset', '/data2/rlhf/yzy/data/rm_train/train_20240425-v2/test', '--dataset_probs', '1.0', '--flash_attn', '--max_samples', '-1', '--ckpt_path', '/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_SFT_0624_105/checkpoints', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_SFT_0624_105', '--wandb_project', 'rl0624']
+10.64.8.105: [2024-06-25 15:18:17,801] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.105: [2024-06-25 15:18:17,801] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.105: [2024-06-25 15:18:17,802] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.105: [2024-06-25 15:18:17,802] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.105: [2024-06-25 15:18:17,802] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.105: [2024-06-25 15:18:17,802] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.105: [2024-06-25 15:18:17,807] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.105: [2024-06-25 15:18:17,807] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.105: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.105: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.105: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.105: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.105: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.105: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.105: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.105: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.105: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.105: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.105: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.105: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.105: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.105: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.105: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.105: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.105: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.105: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.105: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.105: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.105: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.105: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.105: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.105: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.105: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.105: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.105: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.105: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.105: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.105: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.105: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.105: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.105: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.105: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.105: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.105: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.105: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.105: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.105: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.105: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.105: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.105: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.105: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.105: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.105: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.105: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.105: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.105: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.105: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.105:   warnings.warn(
+10.64.8.105: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.105:   warnings.warn(
+10.64.8.105: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.105:   warnings.warn(
+10.64.8.105: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.105:   warnings.warn(
+10.64.8.105: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.105:   warnings.warn(
+10.64.8.105: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.105:   warnings.warn(
+10.64.8.105: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.105:   warnings.warn(
+10.64.8.105: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.105:   warnings.warn(
+10.64.8.105: [2024-06-25 15:18:19,977] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.105: [2024-06-25 15:18:19,977] [INFO] [comm.py:668:init_distributed] Initializing TorchBackend in DeepSpeed with backend nccl
+10.64.8.105: [2024-06-25 15:18:21,294] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.105: [2024-06-25 15:18:21,310] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.105: [2024-06-25 15:18:21,311] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.105: [2024-06-25 15:18:21,324] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.105: [2024-06-25 15:18:21,324] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.105: [2024-06-25 15:18:21,326] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.105: [2024-06-25 15:18:21,328] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.105: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.105: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.105: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.105: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.105: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.105: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.105: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.106: [2024-06-25 15:18:24,517] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.106: [2024-06-25 15:18:24,556] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.106: [2024-06-25 15:18:24,660] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.106: [2024-06-25 15:18:24,679] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.106: [2024-06-25 15:18:24,679] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.106: [2024-06-25 15:18:24,685] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.106: [2024-06-25 15:18:24,689] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.106: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.106: [2024-06-25 15:18:24,697] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+10.64.8.106: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.106: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.106: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.106: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.106: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.106: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.106: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.106: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.106: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.106: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.106: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.106: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.106: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.106: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.106: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.106: [93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+10.64.8.106: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.106: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.106: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.106: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.106: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.106: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.106: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.106: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.106: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.106: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.106: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.106: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.106: [93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+10.64.8.106: [93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+10.64.8.106: [93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+10.64.8.106: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.106: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.106: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.106: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.106: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.106: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.106: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.106: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.106: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.106: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.106: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.106: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.106: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.106: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.106: [93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+10.64.8.106: [93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+10.64.8.106: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.106:   warnings.warn(
+10.64.8.106: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.106:   warnings.warn(
+10.64.8.106: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.106:   warnings.warn(
+10.64.8.106: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.106:   warnings.warn(
+10.64.8.106: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.106:   warnings.warn(
+10.64.8.106: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.106:   warnings.warn(
+10.64.8.106: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.106:   warnings.warn(
+10.64.8.106: /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+10.64.8.106:   warnings.warn(
+10.64.8.106: [2024-06-25 15:18:26,425] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.106: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.106: [2024-06-25 15:18:27,950] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.106: [2024-06-25 15:18:27,950] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.106: [2024-06-25 15:18:27,951] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.106: [2024-06-25 15:18:27,951] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.106: [2024-06-25 15:18:27,952] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.106: [2024-06-25 15:18:27,952] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.106: [2024-06-25 15:18:27,953] [INFO] [comm.py:637:init_distributed] cdb=None
+10.64.8.106: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.106: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.106: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.105: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.106: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.106: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.106: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.106: You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+10.64.8.105: [2024-06-25 15:18:37,230] [INFO] [partition_parameters.py:345:__exit__] finished initializing model - num_params = 339, num_elems = 7.62B
+10.64.8.105: Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:36, 12.18s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:36, 12.19s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:36, 12.21s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:36, 12.21s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:36, 12.24s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:36, 12.26s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:36, 12.28s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:37, 12.37s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.71s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.71s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.70s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.70s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.71s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.72s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.72s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.89s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.48s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.47s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.48s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.48s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.48s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.48s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.48s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:30<00:09,  9.74s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  7.67s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  8.57s/it]
+10.64.8.106: Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:36, 12.20s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:36, 12.20s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:36, 12.20s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:36, 12.20s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:36, 12.20s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:36, 12.21s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:36, 12.21s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:36, 12.29s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.69s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.70s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.70s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.70s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.70s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.71s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.73s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:20<00:19,  9.76s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.47s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.49s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.48s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.48s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.48s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.46s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.49s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:29<00:09,  9.49s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  7.68s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  8.57s/it]
+10.64.8.106: Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  7.68s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  8.57s/it]
+10.64.8.105: Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  7.67s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  8.57s/it]
+10.64.8.106: Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  7.67s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  8.58s/it]
+10.64.8.105: Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  7.68s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  8.57s/it]
+10.64.8.105: Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  7.68s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  8.57s/it]
+10.64.8.105: Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  7.68s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  8.58s/it]
+10.64.8.106: Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  7.69s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  7.69s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  8.58s/it]
+10.64.8.106: Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  8.58s/it]
+10.64.8.106: Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  7.69s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  8.58s/it]
+10.64.8.106: Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  7.69s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  8.58s/it]
+10.64.8.105: Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  7.69s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  8.58s/it]
+10.64.8.106: Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  7.69s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  8.58s/it]
+10.64.8.105: Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  7.69s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:34<00:00,  8.58s/it]
+10.64.8.106: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.106: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.105: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.105: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.105: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.105: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.105: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.105: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.106: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.106: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.106: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.105: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.106: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.106: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.106: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.105: Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...
+10.64.8.105: 
+10.64.8.105: 
+10.64.8.105: Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...
+10.64.8.105: Creating extension directory /root/.cache/torch_extensions/py311_cu121/fused_adam...Creating extension directory /root/.cache/torch_extensions/py311_cu121/fused_adam...
+10.64.8.105: 
+10.64.8.105: Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...Creating extension directory /root/.cache/torch_extensions/py311_cu121/fused_adam...
+10.64.8.105: 
+10.64.8.105: Creating extension directory /root/.cache/torch_extensions/py311_cu121/fused_adam...
+10.64.8.105: Creating extension directory /root/.cache/torch_extensions/py311_cu121/fused_adam...
+10.64.8.105: Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...
+10.64.8.105: Creating extension directory /root/.cache/torch_extensions/py311_cu121/fused_adam...
+10.64.8.106: Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...
+10.64.8.106: Creating extension directory /root/.cache/torch_extensions/py311_cu121/fused_adam...
+10.64.8.106: Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...
+10.64.8.106: Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...
+10.64.8.106: Creating extension directory /root/.cache/torch_extensions/py311_cu121/fused_adam...
+10.64.8.106: Creating extension directory /root/.cache/torch_extensions/py311_cu121/fused_adam...
+10.64.8.106: Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...
+10.64.8.106: Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...
+10.64.8.106: Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...
+10.64.8.105: Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...
+10.64.8.106: Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...
+10.64.8.106: Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...
+10.64.8.105: Detected CUDA files, patching ldflags
+10.64.8.105: Emitting ninja build file /root/.cache/torch_extensions/py311_cu121/fused_adam/build.ninja...
+10.64.8.105: Building extension module fused_adam...
+10.64.8.105: Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+10.64.8.106: Detected CUDA files, patching ldflags
+10.64.8.106: Emitting ninja build file /root/.cache/torch_extensions/py311_cu121/fused_adam/build.ninja...
+10.64.8.106: Building extension module fused_adam...
+10.64.8.106: Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+10.64.8.105: Loading checkpoint shards: 100%|██████████| 4/4 [00:36<00:00,  8.33s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:36<00:00,  9.06s/it]
+10.64.8.105: Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+10.64.8.105: Actor(
+10.64.8.105:   (model): Qwen2ForCausalLM(
+10.64.8.105:     (model): Qwen2Model(
+10.64.8.105:       (embed_tokens): Embedding(152064, 3584)
+10.64.8.105:       (layers): ModuleList(
+10.64.8.105:         (0-27): 28 x Qwen2DecoderLayer(
+10.64.8.105:           (self_attn): Qwen2FlashAttention2(
+10.64.8.105:             (q_proj): Linear(in_features=3584, out_features=3584, bias=True)
+10.64.8.105:             (k_proj): Linear(in_features=3584, out_features=512, bias=True)
+10.64.8.105:             (v_proj): Linear(in_features=3584, out_features=512, bias=True)
+10.64.8.105:             (o_proj): Linear(in_features=3584, out_features=3584, bias=False)
+10.64.8.105:             (rotary_emb): Qwen2RotaryEmbedding()
+10.64.8.105:           )
+10.64.8.105:           (mlp): Qwen2MLP(
+10.64.8.105:             (gate_proj): Linear(in_features=3584, out_features=18944, bias=False)
+10.64.8.105:             (up_proj): Linear(in_features=3584, out_features=18944, bias=False)
+10.64.8.105:             (down_proj): Linear(in_features=18944, out_features=3584, bias=False)
+10.64.8.105:             (act_fn): SiLU()
+10.64.8.105:           )
+10.64.8.105:           (input_layernorm): Qwen2RMSNorm()
+10.64.8.105:           (post_attention_layernorm): Qwen2RMSNorm()
+10.64.8.105:         )
+10.64.8.105:       )
+10.64.8.105:       (norm): Qwen2RMSNorm()
+10.64.8.105:     )
+10.64.8.105:     (lm_head): Linear(in_features=3584, out_features=152064, bias=False)
+10.64.8.105:   )
+10.64.8.105: )
+10.64.8.105: Using /root/.cache/torch_extensions/py311_cu121 as PyTorch extensions root...
+10.64.8.106: [1/3] /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile --dependency-output multi_tensor_adam.cuda.o.d -DTORCH_EXTENSION_NAME=fused_adam -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -I/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/deepspeed/ops/csrc/includes -I/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/deepspeed/ops/csrc/adam -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include/TH -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/include/python3.11 -D_GLIBCXX_USE_CXX11_ABI=0 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_90,code=compute_90 -gencode=arch=compute_90,code=sm_90 --compiler-options '-fPIC' -O3 -DVERSION_GE_1_1 -DVERSION_GE_1_3 -DVERSION_GE_1_5 -lineinfo --use_fast_math -gencode=arch=compute_90,code=sm_90 -gencode=arch=compute_90,code=compute_90 -DBF16_AVAILABLE -U__CUDA_NO_BFLOAT16_OPERATORS__ -U__CUDA_NO_BFLOAT162_OPERATORS__ -std=c++17 -c /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/deepspeed/ops/csrc/adam/multi_tensor_adam.cu -o multi_tensor_adam.cuda.o 
+10.64.8.105: [1/3] /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile --dependency-output multi_tensor_adam.cuda.o.d -DTORCH_EXTENSION_NAME=fused_adam -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -I/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/deepspeed/ops/csrc/includes -I/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/deepspeed/ops/csrc/adam -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include/TH -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/include/python3.11 -D_GLIBCXX_USE_CXX11_ABI=0 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_90,code=compute_90 -gencode=arch=compute_90,code=sm_90 --compiler-options '-fPIC' -O3 -DVERSION_GE_1_1 -DVERSION_GE_1_3 -DVERSION_GE_1_5 -lineinfo --use_fast_math -gencode=arch=compute_90,code=sm_90 -gencode=arch=compute_90,code=compute_90 -DBF16_AVAILABLE -U__CUDA_NO_BFLOAT16_OPERATORS__ -U__CUDA_NO_BFLOAT162_OPERATORS__ -std=c++17 -c /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/deepspeed/ops/csrc/adam/multi_tensor_adam.cu -o multi_tensor_adam.cuda.o 
+10.64.8.106: [2/3] c++ -MMD -MF fused_adam_frontend.o.d -DTORCH_EXTENSION_NAME=fused_adam -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -I/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/deepspeed/ops/csrc/includes -I/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/deepspeed/ops/csrc/adam -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include/TH -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/include/python3.11 -D_GLIBCXX_USE_CXX11_ABI=0 -fPIC -std=c++17 -O3 -std=c++17 -g -Wno-reorder -DVERSION_GE_1_1 -DVERSION_GE_1_3 -DVERSION_GE_1_5 -DBF16_AVAILABLE -c /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/deepspeed/ops/csrc/adam/fused_adam_frontend.cpp -o fused_adam_frontend.o 
+10.64.8.106: [3/3] c++ fused_adam_frontend.o multi_tensor_adam.cuda.o -shared -L/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/lib -lc10 -lc10_cuda -ltorch_cpu -ltorch_cuda -ltorch -ltorch_python -L/usr/local/cuda/lib64 -lcudart -o fused_adam.so
+10.64.8.106: Loading extension module fused_adam...
+10.64.8.106: Time to load fused_adam op: 32.28645181655884 seconds
+10.64.8.106: Loading extension module fused_adam...
+10.64.8.106: Loading extension module fused_adam...Loading extension module fused_adam...Loading extension module fused_adam...Loading extension module fused_adam...Loading extension module fused_adam...
+10.64.8.106: 
+10.64.8.106: 
+10.64.8.106: 
+10.64.8.106: 
+10.64.8.106: Loading extension module fused_adam...
+10.64.8.106: Time to load fused_adam op: 32.32607841491699 seconds
+10.64.8.106: Time to load fused_adam op: 32.321468353271484 secondsTime to load fused_adam op: 32.32592439651489 secondsTime to load fused_adam op: 32.32245635986328 secondsTime to load fused_adam op: 32.32535648345947 seconds
+10.64.8.106: 
+10.64.8.106: 
+10.64.8.106: 
+10.64.8.106: Time to load fused_adam op: 32.32617926597595 seconds
+10.64.8.106: Time to load fused_adam op: 32.32626128196716 seconds
+10.64.8.105: [2/3] c++ -MMD -MF fused_adam_frontend.o.d -DTORCH_EXTENSION_NAME=fused_adam -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -I/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/deepspeed/ops/csrc/includes -I/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/deepspeed/ops/csrc/adam -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include/TH -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/include/python3.11 -D_GLIBCXX_USE_CXX11_ABI=0 -fPIC -std=c++17 -O3 -std=c++17 -g -Wno-reorder -DVERSION_GE_1_1 -DVERSION_GE_1_3 -DVERSION_GE_1_5 -DBF16_AVAILABLE -c /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/deepspeed/ops/csrc/adam/fused_adam_frontend.cpp -o fused_adam_frontend.o 
+10.64.8.105: [3/3] c++ fused_adam_frontend.o multi_tensor_adam.cuda.o -shared -L/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/torch/lib -lc10 -lc10_cuda -ltorch_cpu -ltorch_cuda -ltorch -ltorch_python -L/usr/local/cuda/lib64 -lcudart -o fused_adam.so
+10.64.8.105: Loading extension module fused_adam...
+10.64.8.105: Time to load fused_adam op: 33.295299768447876 seconds
+10.64.8.105: Loading extension module fused_adam...
+10.64.8.105: Time to load fused_adam op: 31.419755458831787 seconds
+10.64.8.105: Loading extension module fused_adam...
+10.64.8.105: Loading extension module fused_adam...
+10.64.8.105: Loading extension module fused_adam...
+10.64.8.105: Time to load fused_adam op: 33.326369524002075 seconds
+10.64.8.105: Time to load fused_adam op: 33.32642388343811 seconds
+10.64.8.105: Time to load fused_adam op: 33.32641291618347 seconds
+10.64.8.105: Loading extension module fused_adam...Loading extension module fused_adam...
+10.64.8.105: 
+10.64.8.105: Loading extension module fused_adam...
+10.64.8.105: Time to load fused_adam op: 33.32736778259277 seconds
+10.64.8.105: Time to load fused_adam op: 33.327351808547974 seconds
+10.64.8.105: Time to load fused_adam op: 33.327370166778564 seconds

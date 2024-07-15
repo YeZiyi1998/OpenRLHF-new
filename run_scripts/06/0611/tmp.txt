@@ -1,0 +1,289 @@
+[2024-06-22 15:33:13,136] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[2024-06-22 15:33:15,099] [INFO] [runner.py:463:main] Using IP address of 10.64.8.13 for node 10.64.8.13
+[2024-06-22 15:33:15,099] [INFO] [runner.py:568:main] cmd = /data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python -u -m deepspeed.launcher.launch --world_info=eyIxMC42NC44LjEzIjogWzAsIDEsIDIsIDMsIDQsIDUsIDYsIDddfQ== --master_addr=10.64.8.13 --master_port=29500 --enable_each_rank_log=None ../../examples/test_rm.py --save_path /data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2 --logging_steps 10 --micro_train_batch_size 16 --train_batch_size 128 --pretrain /data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2 --quantized_type bf16 --max_epochs 1 --max_len 2048 --zero_stage 3 --l2 0.0001 --eval_steps 250 --learning_rate 9e-6 --dataset /data2/rlhf/lixs/data/rm_train/train_20240425-v2 --dataset_probs 1 --flash_attn --gradient_checkpointing --use_wandb a77607626908409e45afa2ca225cf179e9a316fc --wandb_run_name Qwen_MOE_RM_0611_2 --wandb_project rl
+[2024-06-22 15:33:18,862] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[2024-06-22 15:33:20,429] [INFO] [launch.py:139:main] 0 NCCL_VERSION=2.19.3
+[2024-06-22 15:33:20,429] [INFO] [launch.py:146:main] WORLD INFO DICT: {'10.64.8.13': [0, 1, 2, 3, 4, 5, 6, 7]}
+[2024-06-22 15:33:20,429] [INFO] [launch.py:152:main] nnodes=1, num_local_procs=8, node_rank=0
+[2024-06-22 15:33:20,429] [INFO] [launch.py:163:main] global_rank_mapping=defaultdict(<class 'list'>, {'10.64.8.13': [0, 1, 2, 3, 4, 5, 6, 7]})
+[2024-06-22 15:33:20,429] [INFO] [launch.py:164:main] dist_world_size=8
+[2024-06-22 15:33:20,429] [INFO] [launch.py:168:main] Setting CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+[2024-06-22 15:33:20,430] [INFO] [launch.py:256:main] process 13040 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/test_rm.py', '--local_rank=0', '--save_path', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--logging_steps', '10', '--micro_train_batch_size', '16', '--train_batch_size', '128', '--pretrain', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--quantized_type', 'bf16', '--max_epochs', '1', '--max_len', '2048', '--zero_stage', '3', '--l2', '0.0001', '--eval_steps', '250', '--learning_rate', '9e-6', '--dataset', '/data2/rlhf/lixs/data/rm_train/train_20240425-v2', '--dataset_probs', '1', '--flash_attn', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_MOE_RM_0611_2', '--wandb_project', 'rl']
+[2024-06-22 15:33:20,430] [INFO] [launch.py:256:main] process 13041 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/test_rm.py', '--local_rank=1', '--save_path', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--logging_steps', '10', '--micro_train_batch_size', '16', '--train_batch_size', '128', '--pretrain', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--quantized_type', 'bf16', '--max_epochs', '1', '--max_len', '2048', '--zero_stage', '3', '--l2', '0.0001', '--eval_steps', '250', '--learning_rate', '9e-6', '--dataset', '/data2/rlhf/lixs/data/rm_train/train_20240425-v2', '--dataset_probs', '1', '--flash_attn', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_MOE_RM_0611_2', '--wandb_project', 'rl']
+[2024-06-22 15:33:20,431] [INFO] [launch.py:256:main] process 13042 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/test_rm.py', '--local_rank=2', '--save_path', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--logging_steps', '10', '--micro_train_batch_size', '16', '--train_batch_size', '128', '--pretrain', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--quantized_type', 'bf16', '--max_epochs', '1', '--max_len', '2048', '--zero_stage', '3', '--l2', '0.0001', '--eval_steps', '250', '--learning_rate', '9e-6', '--dataset', '/data2/rlhf/lixs/data/rm_train/train_20240425-v2', '--dataset_probs', '1', '--flash_attn', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_MOE_RM_0611_2', '--wandb_project', 'rl']
+[2024-06-22 15:33:20,431] [INFO] [launch.py:256:main] process 13043 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/test_rm.py', '--local_rank=3', '--save_path', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--logging_steps', '10', '--micro_train_batch_size', '16', '--train_batch_size', '128', '--pretrain', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--quantized_type', 'bf16', '--max_epochs', '1', '--max_len', '2048', '--zero_stage', '3', '--l2', '0.0001', '--eval_steps', '250', '--learning_rate', '9e-6', '--dataset', '/data2/rlhf/lixs/data/rm_train/train_20240425-v2', '--dataset_probs', '1', '--flash_attn', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_MOE_RM_0611_2', '--wandb_project', 'rl']
+[2024-06-22 15:33:20,431] [INFO] [launch.py:256:main] process 13044 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/test_rm.py', '--local_rank=4', '--save_path', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--logging_steps', '10', '--micro_train_batch_size', '16', '--train_batch_size', '128', '--pretrain', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--quantized_type', 'bf16', '--max_epochs', '1', '--max_len', '2048', '--zero_stage', '3', '--l2', '0.0001', '--eval_steps', '250', '--learning_rate', '9e-6', '--dataset', '/data2/rlhf/lixs/data/rm_train/train_20240425-v2', '--dataset_probs', '1', '--flash_attn', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_MOE_RM_0611_2', '--wandb_project', 'rl']
+[2024-06-22 15:33:20,432] [INFO] [launch.py:256:main] process 13045 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/test_rm.py', '--local_rank=5', '--save_path', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--logging_steps', '10', '--micro_train_batch_size', '16', '--train_batch_size', '128', '--pretrain', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--quantized_type', 'bf16', '--max_epochs', '1', '--max_len', '2048', '--zero_stage', '3', '--l2', '0.0001', '--eval_steps', '250', '--learning_rate', '9e-6', '--dataset', '/data2/rlhf/lixs/data/rm_train/train_20240425-v2', '--dataset_probs', '1', '--flash_attn', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_MOE_RM_0611_2', '--wandb_project', 'rl']
+[2024-06-22 15:33:20,432] [INFO] [launch.py:256:main] process 13046 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/test_rm.py', '--local_rank=6', '--save_path', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--logging_steps', '10', '--micro_train_batch_size', '16', '--train_batch_size', '128', '--pretrain', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--quantized_type', 'bf16', '--max_epochs', '1', '--max_len', '2048', '--zero_stage', '3', '--l2', '0.0001', '--eval_steps', '250', '--learning_rate', '9e-6', '--dataset', '/data2/rlhf/lixs/data/rm_train/train_20240425-v2', '--dataset_probs', '1', '--flash_attn', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_MOE_RM_0611_2', '--wandb_project', 'rl']
+[2024-06-22 15:33:20,432] [INFO] [launch.py:256:main] process 13047 spawned with command: ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/test_rm.py', '--local_rank=7', '--save_path', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--logging_steps', '10', '--micro_train_batch_size', '16', '--train_batch_size', '128', '--pretrain', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--quantized_type', 'bf16', '--max_epochs', '1', '--max_len', '2048', '--zero_stage', '3', '--l2', '0.0001', '--eval_steps', '250', '--learning_rate', '9e-6', '--dataset', '/data2/rlhf/lixs/data/rm_train/train_20240425-v2', '--dataset_probs', '1', '--flash_attn', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_MOE_RM_0611_2', '--wandb_project', 'rl']
+[2024-06-22 15:33:29,471] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[2024-06-22 15:33:30,087] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2024-06-22 15:33:30,216] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2024-06-22 15:33:30,220] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2024-06-22 15:33:30,239] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2024-06-22 15:33:30,258] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2024-06-22 15:33:30,260] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[2024-06-22 15:33:30,281] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m async_io requires the dev libaio .so object and headers but these were not found.
+[93m [WARNING] [0m async_io: please install the libaio-dev package with apt
+[93m [WARNING] [0m If libaio is already installed (perhaps from source), try setting the CFLAGS and LDFLAGS environment variables to where it can be found.
+[93m [WARNING] [0m Please specify the CUTLASS repo directory as environment variable $CUTLASS_PATH
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+[93m [WARNING] [0m sparse_attn requires a torch version >= 1.5 and < 2.0 but detected 2.2
+[93m [WARNING] [0m using untested triton version (2.2.0), only 1.0.0 is known to be compatible
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+[2024-06-22 15:33:31,031] [INFO] [comm.py:637:init_distributed] cdb=None
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/deepspeed.py:23: FutureWarning: transformers.deepspeed module is deprecated and will be removed in a future version. Please import deepspeed modules directly from transformers.integrations
+  warnings.warn(
+[2024-06-22 15:33:31,539] [INFO] [comm.py:637:init_distributed] cdb=None
+[2024-06-22 15:33:31,539] [INFO] [comm.py:668:init_distributed] Initializing TorchBackend in DeepSpeed with backend nccl
+Traceback (most recent call last):
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 192, in <module>
+    train(args)
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 29, in train
+    model = get_llm_for_sequence_regression(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/yzy/OpenRLHF-new/openrlhf/models/model.py", line 54, in get_llm_for_sequence_regression
+    config = AutoConfig.from_pretrained(model_name_or_path, trust_remote_code=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/models/auto/configuration_auto.py", line 934, in from_pretrained
+    config_dict, unused_kwargs = PretrainedConfig.get_config_dict(pretrained_model_name_or_path, **kwargs)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 632, in get_config_dict
+    config_dict, kwargs = cls._get_config_dict(pretrained_model_name_or_path, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 689, in _get_config_dict
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/utils/hub.py", line 370, in cached_file
+    raise EnvironmentError(
+OSError: /data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2 does not appear to have a file named config.json. Checkout 'https://huggingface.co//data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2/tree/None' for available files.
+[2024-06-22 15:33:32,241] [INFO] [comm.py:637:init_distributed] cdb=None
+Traceback (most recent call last):
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 192, in <module>
+    train(args)
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 29, in train
+    model = get_llm_for_sequence_regression(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/yzy/OpenRLHF-new/openrlhf/models/model.py", line 54, in get_llm_for_sequence_regression
+    config = AutoConfig.from_pretrained(model_name_or_path, trust_remote_code=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/models/auto/configuration_auto.py", line 934, in from_pretrained
+    config_dict, unused_kwargs = PretrainedConfig.get_config_dict(pretrained_model_name_or_path, **kwargs)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 632, in get_config_dict
+    config_dict, kwargs = cls._get_config_dict(pretrained_model_name_or_path, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 689, in _get_config_dict
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/utils/hub.py", line 370, in cached_file
+    raise EnvironmentError(
+OSError: /data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2 does not appear to have a file named config.json. Checkout 'https://huggingface.co//data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2/tree/None' for available files.
+[2024-06-22 15:33:32,344] [INFO] [comm.py:637:init_distributed] cdb=None
+Traceback (most recent call last):
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 192, in <module>
+    train(args)
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 29, in train
+    model = get_llm_for_sequence_regression(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/yzy/OpenRLHF-new/openrlhf/models/model.py", line 54, in get_llm_for_sequence_regression
+    config = AutoConfig.from_pretrained(model_name_or_path, trust_remote_code=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/models/auto/configuration_auto.py", line 934, in from_pretrained
+[2024-06-22 15:33:32,351] [INFO] [comm.py:637:init_distributed] cdb=None
+    config_dict, unused_kwargs = PretrainedConfig.get_config_dict(pretrained_model_name_or_path, **kwargs)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 632, in get_config_dict
+    config_dict, kwargs = cls._get_config_dict(pretrained_model_name_or_path, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 689, in _get_config_dict
+[2024-06-22 15:33:32,352] [INFO] [comm.py:637:init_distributed] cdb=None
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/utils/hub.py", line 370, in cached_file
+    raise EnvironmentError(
+OSError: /data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2 does not appear to have a file named config.json. Checkout 'https://huggingface.co//data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2/tree/None' for available files.
+Traceback (most recent call last):
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 192, in <module>
+    train(args)
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 29, in train
+    model = get_llm_for_sequence_regression(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/yzy/OpenRLHF-new/openrlhf/models/model.py", line 54, in get_llm_for_sequence_regression
+    config = AutoConfig.from_pretrained(model_name_or_path, trust_remote_code=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/models/auto/configuration_auto.py", line 934, in from_pretrained
+    config_dict, unused_kwargs = PretrainedConfig.get_config_dict(pretrained_model_name_or_path, **kwargs)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 632, in get_config_dict
+    config_dict, kwargs = cls._get_config_dict(pretrained_model_name_or_path, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 689, in _get_config_dict
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/utils/hub.py", line 370, in cached_file
+    raise EnvironmentError(
+OSError: /data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2 does not appear to have a file named config.json. Checkout 'https://huggingface.co//data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2/tree/None' for available files.
+Traceback (most recent call last):
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 192, in <module>
+    train(args)
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 29, in train
+    model = get_llm_for_sequence_regression(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/yzy/OpenRLHF-new/openrlhf/models/model.py", line 54, in get_llm_for_sequence_regression
+    config = AutoConfig.from_pretrained(model_name_or_path, trust_remote_code=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/models/auto/configuration_auto.py", line 934, in from_pretrained
+    config_dict, unused_kwargs = PretrainedConfig.get_config_dict(pretrained_model_name_or_path, **kwargs)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 632, in get_config_dict
+    config_dict, kwargs = cls._get_config_dict(pretrained_model_name_or_path, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 689, in _get_config_dict
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/utils/hub.py", line 370, in cached_file
+    raise EnvironmentError(
+OSError: /data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2 does not appear to have a file named config.json. Checkout 'https://huggingface.co//data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2/tree/None' for available files.
+[2024-06-22 15:33:32,367] [INFO] [comm.py:637:init_distributed] cdb=None
+[2024-06-22 15:33:32,367] [INFO] [comm.py:637:init_distributed] cdb=None
+Traceback (most recent call last):
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 192, in <module>
+    train(args)
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 29, in train
+    model = get_llm_for_sequence_regression(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/yzy/OpenRLHF-new/openrlhf/models/model.py", line 54, in get_llm_for_sequence_regression
+    config = AutoConfig.from_pretrained(model_name_or_path, trust_remote_code=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/models/auto/configuration_auto.py", line 934, in from_pretrained
+    config_dict, unused_kwargs = PretrainedConfig.get_config_dict(pretrained_model_name_or_path, **kwargs)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 632, in get_config_dict
+    config_dict, kwargs = cls._get_config_dict(pretrained_model_name_or_path, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 689, in _get_config_dict
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/utils/hub.py", line 370, in cached_file
+    raise EnvironmentError(
+OSError: /data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2 does not appear to have a file named config.json. Checkout 'https://huggingface.co//data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2/tree/None' for available files.
+Traceback (most recent call last):
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 192, in <module>
+starting..
+    Traceback (most recent call last):
+train(args)
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 192, in <module>
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 29, in train
+    train(args)
+  File "/data2/rlhf/yzy/OpenRLHF-new/run_scripts/0611/../../examples/test_rm.py", line 29, in train
+    model = get_llm_for_sequence_regression(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/yzy/OpenRLHF-new/openrlhf/models/model.py", line 54, in get_llm_for_sequence_regression
+    model = get_llm_for_sequence_regression(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/yzy/OpenRLHF-new/openrlhf/models/model.py", line 54, in get_llm_for_sequence_regression
+    config = AutoConfig.from_pretrained(model_name_or_path, trust_remote_code=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/models/auto/configuration_auto.py", line 934, in from_pretrained
+    config = AutoConfig.from_pretrained(model_name_or_path, trust_remote_code=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/models/auto/configuration_auto.py", line 934, in from_pretrained
+    config_dict, unused_kwargs = PretrainedConfig.get_config_dict(pretrained_model_name_or_path, **kwargs)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 632, in get_config_dict
+    config_dict, unused_kwargs = PretrainedConfig.get_config_dict(pretrained_model_name_or_path, **kwargs)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 632, in get_config_dict
+    config_dict, kwargs = cls._get_config_dict(pretrained_model_name_or_path, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 689, in _get_config_dict
+    config_dict, kwargs = cls._get_config_dict(pretrained_model_name_or_path, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/configuration_utils.py", line 689, in _get_config_dict
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/utils/hub.py", line 370, in cached_file
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/lib/python3.11/site-packages/transformers/utils/hub.py", line 370, in cached_file
+    raise EnvironmentError(
+OSError: /data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2 does not appear to have a file named config.json. Checkout 'https://huggingface.co//data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2/tree/None' for available files.
+    raise EnvironmentError(
+OSError: /data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2 does not appear to have a file named config.json. Checkout 'https://huggingface.co//data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2/tree/None' for available files.
+[2024-06-22 15:33:33,434] [INFO] [launch.py:319:sigkill_handler] Killing subprocess 13040
+[2024-06-22 15:33:33,769] [INFO] [launch.py:319:sigkill_handler] Killing subprocess 13041
+[2024-06-22 15:33:33,771] [INFO] [launch.py:319:sigkill_handler] Killing subprocess 13042
+[2024-06-22 15:33:33,772] [INFO] [launch.py:319:sigkill_handler] Killing subprocess 13043
+[2024-06-22 15:33:33,772] [INFO] [launch.py:319:sigkill_handler] Killing subprocess 13044
+[2024-06-22 15:33:33,799] [INFO] [launch.py:319:sigkill_handler] Killing subprocess 13045
+[2024-06-22 15:33:33,800] [INFO] [launch.py:319:sigkill_handler] Killing subprocess 13046
+[2024-06-22 15:33:33,801] [INFO] [launch.py:319:sigkill_handler] Killing subprocess 13047
+[2024-06-22 15:33:33,801] [ERROR] [launch.py:325:sigkill_handler] ['/data2/rlhf/liufeng/miniconda3/envs/yzy-rl-dev/bin/python', '-u', '../../examples/test_rm.py', '--local_rank=7', '--save_path', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--logging_steps', '10', '--micro_train_batch_size', '16', '--train_batch_size', '128', '--pretrain', '/data2/rlhf/yezy/OpenRLHF-new/outputs/reward_models/Qwen_MOE_RM_0611_2', '--quantized_type', 'bf16', '--max_epochs', '1', '--max_len', '2048', '--zero_stage', '3', '--l2', '0.0001', '--eval_steps', '250', '--learning_rate', '9e-6', '--dataset', '/data2/rlhf/lixs/data/rm_train/train_20240425-v2', '--dataset_probs', '1', '--flash_attn', '--gradient_checkpointing', '--use_wandb', 'a77607626908409e45afa2ca225cf179e9a316fc', '--wandb_run_name', 'Qwen_MOE_RM_0611_2', '--wandb_project', 'rl'] exits with return code = 1

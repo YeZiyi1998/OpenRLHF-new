@@ -1,0 +1,53 @@
+set -x
+unset https_proxy
+unset http_proxy
+export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+
+#USE YOUR TOKEN: REMEMBER!!!
+WANDB_TOKENS=a77607626908409e45afa2ca225cf179e9a316fc
+wandb login --relogin $WANDB_TOKENS
+
+
+EXP_NAME=Qwen_SFT_0622
+
+MODEL="/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/" 
+DATA="/data2/rlhf/yzy/analysis/output/gpt-4-preview.train.jsonl"
+EVAL_DATA="/data2/rlhf/yzy/analysis/output/gpt-4-preview.valid.jsonl"
+save_path="/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/$EXP_NAME"
+BATCH_SIZE_PER_GPU=2
+LR=1e-5
+
+hostfile="./hostfile_rm"
+MACHINE_SIZE=$(wc -l < $hostfile)
+WORLD_SIZE=$[MACHINE_SIZE * 8]
+
+#TODO-be-check: bs large, adamw
+GLOBAL_BATCH_SIZE=$(( ${BATCH_SIZE_PER_GPU} * ${WORLD_SIZE} ))
+
+mkdir -p $save_path
+
+read -r -d '' training_commands <<EOF
+../../examples/train_sft.py \
+    --save_path $save_path \
+    --logging_steps 10 \
+    --micro_train_batch_size $BATCH_SIZE_PER_GPU \
+    --micro_eval_batch_size 1 \
+    --train_batch_size $GLOBAL_BATCH_SIZE \
+    --pretrain $MODEL \
+    --bf16 \
+    --max_epochs 1 \
+    --max_len 6400 \
+    --zero_stage 3 \
+    --eval_steps 250 \
+    --learning_rate $LR\
+    --dataset $DATA \
+    --eval_dataset $EVAL_DATA\
+    --dataset_probs 1.0 \
+    --flash_attn \
+    --gradient_checkpointing \
+    --use_wandb $WANDB_TOKENS \
+    --wandb_run_name $EXP_NAME \
+    --wandb_project rl 
+EOF
+
+deepspeed --hostfile=$hostfile $training_commands 2>&1 | tee $save_path/train_qwen.log
