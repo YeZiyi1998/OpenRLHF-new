@@ -8,7 +8,7 @@ from torch.optim import Optimizer
 from torch.utils.data import DistributedSampler
 from tqdm import tqdm
 import torch.distributed as dist
-from openrlhf.models import LogExpLoss, PairWiseLoss, SwitchBalancingLoss
+from openrlhf.models import GPTLMLoss
 import json
 import os
 import numpy as np
@@ -26,11 +26,9 @@ class Model_list:
         for model in self.model_list:
             if model is not None:
                 model.eval()
-    def step(self, strategy, loss, optimizer, scheduler):
-        for model in self.model_list:
-            if model is not None:
-                strategy.backward(loss, model, optimizer)
-                strategy.optimizer_step(optimizer, model, scheduler)
+    def step(self, strategy, loss, optimizer, scheduler, model):
+        strategy.backward(loss, model, optimizer)
+        strategy.optimizer_step(optimizer, model, scheduler)
     def save(self, strategy, tokenizer, path):
         for idx, model in enumerate(self.model_list):
             if model is not None:
@@ -59,9 +57,11 @@ class RewardModelTrainer2(ABC):
         critic_model,
         strategy,
         optim: Optimizer,
+        optim_c,
         train_dataloader,
         eval_dataloader,
         scheduler,
+        scheduler_c,
         tokenizer,
         max_norm=0.5,
         max_epochs: int = 2,
@@ -80,10 +80,13 @@ class RewardModelTrainer2(ABC):
         self.train_dataloader = train_dataloader
         self.eval_dataloader = eval_dataloader
         self.scheduler = scheduler
+        self.scheduler_c = scheduler_c
         self.optimizer = optim
+        self.optimizer_c = optim_c
         self.tokenizer = tokenizer
         self.args = strategy.args
         self.loss_fn = nn.MSELoss()
+        self.gpt_loss_fn = GPTLMLoss()
 
         # Mixtral 8*7b
         self.aux_loss = self.args.aux_loss_coef > 1e-8
@@ -112,6 +115,63 @@ class RewardModelTrainer2(ABC):
             wandb.define_metric("eval/global_step")
             wandb.define_metric("eval/*", step_metric="eval/global_step", step_sync=True)
 
+    def compute_model_list(self, prompt_ids, prompt_mask, chosens, gen_ids, gen_mask, prompts_id_len, mode, show_case=False):
+        if self.margin_loss:
+            margin = torch.tensor(margin).to(torch.cuda.current_device())
+        else:
+            margin = None
+        loss, s1_loss, s2_loss, c_loss, all_values1, all_values2 = 0, 0, 0, 0, None, None
+        if 's1' in mode:
+            all_values1, output = self.model(prompt_ids, attention_mask=prompt_mask, return_output=True)
+            if self.compute_fp32_loss:
+                all_values1 = all_values1.float()
+            s1_loss = self.loss_fn(all_values1, chosens)
+            loss += s1_loss
+            s1_loss = s1_loss.item()
+        if 's2' in mode and 'c' not in self.args.mode:
+            all_values2, output = self.model2(gen_ids, attention_mask=gen_mask, return_output=True)
+            if self.compute_fp32_loss:
+                all_values2 = all_values2.float()
+            s2_loss = self.loss_fn(all_values2, chosens)
+            loss += s2_loss
+            s2_loss = s2_loss.item()
+        if 'c' in mode:
+            labels = torch.where(gen_mask.bool(), gen_ids, self.gpt_loss_fn.IGNORE_INDEX,)
+            for label, source_len in zip(labels, prompts_id_len):
+                label[:source_len] = self.gpt_loss_fn.IGNORE_INDEX
+            output = self.critic_model(gen_ids, attention_mask=gen_mask, return_output=True)
+            c_loss = self.gpt_loss_fn(output.logits, labels)
+        if 's2' in mode and 'c' in self.args.mode:
+            # first generate
+            self.critic_model.eval()
+            outputs = self.critic_model.generate(
+                input_ids = prompt_ids,
+                attention_mask = prompt_mask,
+                do_sample=False,
+                max_new_tokens=128,
+                temperature=1.0,
+                top_p=0.9,
+                pad_token_id=self.tokenizer.pad_token_id,
+                eos_token_id=self.tokenizer.eos_token_id,
+            )
+            self.critic_model.train()
+            # then get loss
+            all_values2, output = self.model2(outputs[0], attention_mask=outputs[1], return_output=True)
+            if show_case:
+                for outputs_0, prompt_id_len in zip(outputs[0], prompts_id_len):
+                    prev_len = self.tokenizer.decode(outputs_0[prompt_id_len:], skip_special_tokens=True)
+                    self.strategy.print(prev_len)
+            if self.compute_fp32_loss:
+                all_values2 = all_values2.float()
+            s2_loss = self.loss_fn(all_values2, chosens)
+            loss += s2_loss
+            s2_loss = s2_loss.item()
+
+        if not self.aux_loss:
+            aux_loss = 0
+        loss += aux_loss * self.args.aux_loss_coef
+        return loss, all_values1, all_values2, s1_loss, s2_loss, c_loss, aux_loss
+
     def fit(self, args):
         # get eval and save steps
         if args.eval_steps == -1:
@@ -136,7 +196,10 @@ class RewardModelTrainer2(ABC):
             acc_mean1 = 0
             acc_mean2 = 0
             loss_mean = 0
-
+            if args.mode == 's2_c':
+                mode = 's2' if global_step % 2 == 1 else 'c'
+            else:
+                mode = args.mode
             for prompt_ids, prompt_mask, gen_ids, gen_mask, chosens, extra, meta_info, prompts_id_len in self.train_dataloader:
                 prompt_ids = prompt_ids.squeeze(1).to(torch.cuda.current_device())
                 prompt_mask = prompt_mask.squeeze(1).to(torch.cuda.current_device())
@@ -144,44 +207,12 @@ class RewardModelTrainer2(ABC):
                 gen_mask = gen_mask.squeeze(1).to(torch.cuda.current_device())
                 chosens = chosens.to(torch.cuda.current_device())
 
-                if self.margin_loss:
-                    margin = torch.tensor(margin).to(torch.cuda.current_device())
-                else:
-                    margin = None
-                loss, s1_loss, s2_loss, c_loss, all_values1, all_values2 = 0, 0, 0, 0, None, None
-                if 's1' in args.mode:
-                    all_values1, output = self.model(prompt_ids, attention_mask=prompt_mask, return_output=True)
-                    if self.compute_fp32_loss:
-                        all_values1 = all_values1.float()
-                    s1_loss = self.loss_fn(all_values1, chosens)
-                    loss += s1_loss
-                    s1_loss = s1_loss.item()
-                if 's2' in args.mode and 'c' not in args.mode:
-                    all_values2, output = self.model2(gen_ids, attention_mask=gen_mask, return_output=True)
-                    if self.compute_fp32_loss:
-                        all_values2 = all_values2.float()
-                    s2_loss = self.loss_fn(all_values2, chosens)
-                    loss += s2_loss
-                    s2_loss = s2_loss.item()
-                if 'c' in args.mode:
-                    labels = torch.where(
-                        gen_mask.bool(),
-                        gen_ids,
-                        self.loss_fn.IGNORE_INDEX,
-                    )
-                    for label, source_len in zip(labels, prompts_id_len):
-                        label[:source_len] = self.loss_fn.IGNORE_INDEX
-                    output = self.model(inputs, attention_mask=attention_mask, return_output=True)
-                    loss += c_loss
+                loss, all_values1, all_values2, s1_loss, s2_loss, c_loss, aux_loss = self.compute_model_list(prompt_ids, prompt_mask, chosens, gen_ids, gen_mask, prompts_id_len, mode, show_case= True if global_step % 200 == 1 else False)
+                if 'c' in self.args.mode:
+                    self.model_list.step(self.strategy, c_loss, self.optimizer_c, self.scheduler_c, self.critic_model)
                     c_loss = c_loss.item()
-                if 's2' in args.mode and 'c' in args.mode:
-                    pass
-
-
-                if not self.aux_loss:
-                    aux_loss = 0
-                loss += aux_loss * self.args.aux_loss_coef
-                self.model_list.step(self.strategy, loss, self.optimizer, self.scheduler)
+                self.model_list.step(self.strategy, loss, self.optimizer, self.scheduler, self.model if all_values1 is not None else self.model2)
+                
                 if all_values1 is not None:
                     acc_mean1 = acc_mean1 * 0.9 + 0.1 * ((torch.abs(all_values1 - chosens) < 0.5).int()).float().mean().item()
                 if all_values2 is not None:
@@ -193,12 +224,12 @@ class RewardModelTrainer2(ABC):
                     "loss": loss.item(),
                     's1_loss': s1_loss,
                     's2_loss': s2_loss,
+                    'c_loss': c_loss,
                     "acc_mean1": acc_mean1,
                     "acc_mean2": acc_mean2,
                     "loss_mean": loss_mean,
                 }
-                if self.aux_loss:
-                    logs_dict["aux_loss"] = aux_loss.item()
+
                 # logs/checkpoints/evaluate
                 self.save_logs_and_checkpoints(args, global_step, step_bar, logs_dict)
 
@@ -243,39 +274,22 @@ class RewardModelTrainer2(ABC):
         )
         self.model_list.eval()
         with torch.no_grad():
-            acc1 = 0
-            acc2 = 0
-            loss_sum = 0
-            s1_loss_sum = 0
-            s2_loss_sum = 0
-
+            acc1, acc2 = 0, 0
+            loss_sum, s1_loss_sum, s2_loss_sum, c_loss_sum = 0, 0, 0, 0
+            if 's2' in self.args.mode:
+                mode = 's2'
+            else:
+                mode = 's1'
             for prompt_ids, prompt_mask, gen_ids, gen_mask, chosens, extra, meta_info, prompt_ids_len in eval_dataloader:
                 prompt_ids = prompt_ids.squeeze(1).to(torch.cuda.current_device())
                 prompt_mask = prompt_mask.squeeze(1).to(torch.cuda.current_device())
                 gen_ids = gen_ids.squeeze(1).to(torch.cuda.current_device())
                 gen_mask = gen_mask.squeeze(1).to(torch.cuda.current_device())
                 chosens = chosens.to(torch.cuda.current_device())
-
-                if self.margin_loss:
-                    margin = torch.tensor(margin).to(torch.cuda.current_device())
-                else:
-                    margin = None
-                loss, s1_loss, s2_loss, all_values1, all_values2 = 0, 0, 0, None, None
-                if 's1' in self.args.mode:
-                    all_values1, output = self.model(prompt_ids, attention_mask=prompt_mask, return_output=True)
-                    if self.compute_fp32_loss:
-                        all_values1 = all_values1.float()
-                    s1_loss = self.loss_fn(all_values1, chosens)
-                    loss += s1_loss
-                    s1_loss_sum += s1_loss.item()
-                if 's2' in self.args.mode:
-                    all_values2, output = self.model2(gen_ids, attention_mask=gen_mask, return_output=True)
-                    if self.compute_fp32_loss:
-                        all_values2 = all_values2.float()
-                    s2_loss = self.loss_fn(all_values2, chosens)
-                    loss += s2_loss
-                    s2_loss_sum += s2_loss.item()
-
+                loss, all_values1, all_values2, s1_loss, s2_loss, c_loss, aux_loss = self.compute_model_list(prompt_ids, prompt_mask, chosens, gen_ids, gen_mask, prompt_ids_len, mode=mode)
+                s1_loss_sum += s1_loss
+                s2_loss_sum += s2_loss
+                c_loss_sum += c_loss
                 acc1 += ((torch.abs(all_values1 - chosens) < 0.5).int()).float().mean().item() if all_values1 is not None else 0
                 acc2 += ((torch.abs(all_values2 - chosens) < 0.5).int()).float().mean().item() if all_values2 is not None else 0
 
@@ -309,6 +323,7 @@ class RewardModelTrainer2(ABC):
                 "acc_mean2": acc_mean2,
                 's1_loss': s1_loss_sum,
                 's2_loss': s2_loss_sum,
+                'c_loss': c_loss_sum,
             }
             logs = self.strategy.all_reduce(bar_dict)
             step_bar.set_postfix(logs)
@@ -324,13 +339,15 @@ class RewardModelTrainer2(ABC):
             desc="Test stage...",
             disable=not self.strategy.is_rank_0(),
         )
-        all_info_dict_mode = {'loss':[], 'acc1':[], 'acc2':[],'tags':[], 'test_id': [], 's1_loss':[], 's2_loss':[]}
+        all_info_dict_mode = {'loss':[], 'acc1':[], 'acc2':[],'tags':[], 'test_id': [], 's1_loss':[], 's2_loss':[], 'c_loss':[]}
         self.model_list.eval()
+        if 's2' in self.args.mode:
+            mode = 's2'
+        else:
+            mode = 's1'
         with torch.no_grad():
-            acc1 = 0
-            acc_list1 = []
-            acc2 = 0
-            acc_list2 = []
+            acc1, acc2 = 0, 0
+            acc_list1, acc_list2 = [], []
             tags = []
             loss_sum = 0
             for prompt_ids, prompt_mask, gen_ids, gen_mask, chosens, extra, meta_infos, prompt_ids_len in eval_dataloader:
@@ -339,27 +356,7 @@ class RewardModelTrainer2(ABC):
                 gen_ids = gen_ids.squeeze(1).to(torch.cuda.current_device())
                 gen_mask = gen_mask.squeeze(1).to(torch.cuda.current_device())
                 chosens = chosens.to(torch.cuda.current_device())
-
-                if self.margin_loss:
-                    margin = torch.tensor(margin).to(torch.cuda.current_device())
-                else:
-                    margin = None
-                s1_loss_sum, s2_loss_sum = 0, 0
-                loss, s1_loss, s2_loss, all_values1, all_values2 = 0, 0, 0, None, None
-                if 's1' in self.args.mode:
-                    all_values1, output = self.model(prompt_ids, attention_mask=prompt_mask, return_output=True)
-                    if self.compute_fp32_loss:
-                        all_values1 = all_values1.float()
-                    s1_loss = self.loss_fn(all_values1, chosens)
-                    loss += s1_loss
-                    s1_loss_sum += s1_loss.item()
-                if 's2' in self.args.mode:
-                    all_values2, output = self.model2(gen_ids, attention_mask=gen_mask, return_output=True)
-                    if self.compute_fp32_loss:
-                        all_values2 = all_values2.float()
-                    s2_loss = self.loss_fn(all_values2, chosens)
-                    loss += s2_loss
-                    s2_loss_sum += s2_loss.item()
+                loss, all_values1, all_values2, s1_loss, s2_loss, c_loss, aux_loss = self.compute_model_list(prompt_ids, prompt_mask, chosens, gen_ids, gen_mask, prompt_ids_len, mode=mode)
                 all_info_dict = copy.deepcopy(all_info_dict_mode)
                 if all_values1 is not None:
                     acc_bool1 = (torch.abs(all_values1 - chosens) < 0.5).int()
@@ -377,12 +374,12 @@ class RewardModelTrainer2(ABC):
                 loss_sum += loss.mean().item()
                 step_bar.update()
 
-                
                 all_info_dict['tag'] = ([meta["tag"] for meta in meta_infos])
                 all_info_dict['test_id'] = ([meta["test_id"] for meta in meta_infos])
                 all_info_dict['loss'] = (loss.detach().cpu().tolist()) 
-                all_info_dict['s1_loss'] = s1_loss_sum
-                all_info_dict['s2_loss'] = s2_loss_sum
+                all_info_dict['s1_loss'] = s1_loss
+                all_info_dict['s2_loss'] = s2_loss
+                all_info_dict['c_loss'] = c_loss
 
                 output_file.write(json.dumps(all_info_dict,) + '\n')
                 output_file.flush()

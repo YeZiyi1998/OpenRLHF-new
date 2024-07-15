@@ -17,6 +17,7 @@ from deepspeed.accelerator import get_accelerator
 gc.collect()
 get_accelerator().empty_cache()
 import torch.distributed as dist
+import time
 
 def train(args):
     # configure strategy
@@ -121,6 +122,19 @@ def train(args):
             (model2, optim2, scheduler2),
         )
 
+    # strategy prepare
+    # (
+    #     (actor, actor_optim, actor_scheduler),
+    #     (critic, critic_optim, critic_scheduler),
+    #     reward_model,
+    #     initial_model,
+    # ) = strategy.prepare(
+    #     (actor, actor_optim, actor_scheduler),
+    #     (critic, critic_optim, critic_scheduler),
+    #     reward_model,
+    #     initial_model,
+    #     is_rlhf=True,
+    # )
     optim_c, scheduler_c = None, None
     if model is not None:
         (model, optim, scheduler) = initialize_optim_scheduler(model)
@@ -236,7 +250,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument("--mode", type=str, default="s1")
-
+    time.sleep(1800)
     torch.cuda.empty_cache()
     args = parser.parse_args()
     train(args)
