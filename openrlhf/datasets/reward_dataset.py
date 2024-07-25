@@ -4,7 +4,6 @@ from torch.utils.data import Dataset
 from tqdm import tqdm
 from .utils import exist_and_not_none, zero_pad_sequences
 
-
 def process_reward_data(tokenizer, data):
     messages = []
     for i, message in enumerate(data['conversations']):
@@ -230,14 +229,15 @@ class PairwiseRewardDataset(Dataset):
         max_length: int,
         strategy,
         is_dpo=False,
+        args=None,
     ) -> None:
         super().__init__()
         self.is_dpo = is_dpo
         self.chosens = []
-        self.prompts = []
+        self.prompts, self.old_prompts = [], []
         self.gen = []
         self.meta_infos = []
-
+        self.args=args
         if self.is_dpo:
             self.prompt_ids_lens = []
         else:
@@ -246,9 +246,7 @@ class PairwiseRewardDataset(Dataset):
         self.tokenizer = tokenizer
         self.strategy = strategy
         self.max_length = max_length
-
         for data in tqdm(dataset, disable=not self.strategy.is_rank_0()):   
-            prompt = data['prompt']   
             gen = data['gen']       
             meta_info = {
                 'test_id': data['test_id'],
@@ -258,9 +256,10 @@ class PairwiseRewardDataset(Dataset):
             margin = 0
 
             if self.is_dpo:
+                tmp_prompt = data['prompt_old'] if 'new' in self.args.mode else data['prompt']
                 prompt_token = self.tokenizer(
-                    prompt,
-                    max_length=self.max_length,
+                    tmp_prompt,
+                    max_length=max_length,
                     padding=False,
                     truncation=True,
                     return_tensors="pt",
@@ -269,12 +268,13 @@ class PairwiseRewardDataset(Dataset):
                 # filter the sample whose length is greater than max_length (2 for answer length)
                 if prompt_ids_len >= self.max_length - 2:
                     continue
-                else:
-                    self.prompt_ids_lens.append(prompt_ids_len)
+                self.prompt_ids_lens.append(prompt_ids_len)
             else:
                 self.margins.append(margin)
+            if 'new' in self.args.mode:
+                self.old_prompts.append(data['prompt_old'])
             self.chosens.append(data['chosen'])
-            self.prompts.append(prompt)
+            self.prompts.append(data['prompt'])
             self.gen.append(gen)
             self.meta_infos.append(meta_info)
 
@@ -288,37 +288,43 @@ class PairwiseRewardDataset(Dataset):
             extra = self.prompt_ids_lens[idx]
         else:
             extra = self.margins[idx]
-
         prompt = prompt.rstrip()
         prompt_token = self.tokenizer(
             prompt,
-            max_length=self.max_length,
+            max_length=self.max_length + 512,
             padding=False,
             truncation=True,
             return_tensors="pt",
         )
-
-        prompt_ids_len = prompt_token["attention_mask"].int().sum().item()
-        gen = (prompt + gen).rstrip()
-        gen_token = self.tokenizer(
-            gen,
-            max_length=self.max_length,
-            padding=False,
-            truncation=True,
-            return_tensors="pt",
-        )
+        if 'new' in self.args.mode:
+            old_prompt = self.old_prompts[idx].rstrip()
+            old_prompt_token = self.tokenizer(
+                old_prompt,
+                max_length=self.max_length,
+                padding=False,
+                truncation=True,
+                return_tensors="pt",
+            )
+            prompt_ids_len = old_prompt_token["attention_mask"].int().sum().item()
+        else:
+            prompt_ids_len = prompt_token["attention_mask"].int().sum().item()
+        if self.args.mode == 'c':
+            prompt = (prompt + gen).rstrip()
+            prompt_token = self.tokenizer(
+                prompt,
+                max_length=self.max_length,
+                padding=False,
+                truncation=True,
+                return_tensors="pt",
+            )
 
         # to avoid EOS_token truncation
         prompt_token["input_ids"][0][-1] = self.tokenizer.eos_token_id
         prompt_token["attention_mask"][0][-1] = True
-        gen_token["input_ids"][0][-1] = self.tokenizer.eos_token_id
-        gen_token["attention_mask"][0][-1] = True
 
         return (
             prompt_token["input_ids"],
             prompt_token["attention_mask"],
-            gen_token["input_ids"],
-            gen_token["attention_mask"],
             self.chosens[idx],
             extra,
             meta_info,
@@ -328,17 +334,13 @@ class PairwiseRewardDataset(Dataset):
     def collate_fn(self, item_list):
         chosen_ids = []
         chosen_masks = []
-        reject_ids = []
-        rejects_masks = []
         extras = []
         meta_infos = []
         prompt_ids_lens = []
         chosens = []
-        for chosen_id, chosen_mask, reject_id, rejects_mask, chosen, extra, meta_info, prompt_ids_len in item_list:
+        for chosen_id, chosen_mask, chosen, extra, meta_info, prompt_ids_len in item_list:
             chosen_ids.append(chosen_id)
             chosen_masks.append(chosen_mask)
-            reject_ids.append(reject_id)
-            rejects_masks.append(rejects_mask)
             extras.append(extra)
             meta_infos.append(meta_info)
             chosens.append(chosen)
@@ -346,6 +348,7 @@ class PairwiseRewardDataset(Dataset):
 
         chosen_ids = zero_pad_sequences(chosen_ids, value=self.tokenizer.pad_token_id)
         chosen_masks = zero_pad_sequences(chosen_masks)
-        reject_ids = zero_pad_sequences(reject_ids, value=self.tokenizer.pad_token_id)
-        rejects_masks = zero_pad_sequences(rejects_masks)
-        return chosen_ids, chosen_masks, reject_ids, rejects_masks, torch.tensor(chosens, dtype=torch.bfloat16), extras, meta_infos, prompt_ids_lens
+        if 'new' in self.args.mode:
+            return chosen_ids, chosen_masks, torch.tensor(chosens, dtype=torch.bfloat16), extras, meta_infos, torch.tensor(prompt_ids_lens, dtype=torch.long)
+        else:
+            return chosen_ids, chosen_masks, torch.tensor(chosens, dtype=torch.bfloat16), extras, meta_infos, prompt_ids_lens

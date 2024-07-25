@@ -31,6 +31,7 @@ def get_llm_for_sequence_regression(
     ds_config: dict = None,
     init_value_head: bool = False,
     device_map=None,
+    output_attentions = False,
     **kwargs,
 ) -> nn.Module:
     """Get transformer with a sequence classification head on top (linear layer).
@@ -48,7 +49,7 @@ def get_llm_for_sequence_regression(
         nn.Module: pretrained transformer model.
     """
     assert (
-        model_type == "critic" or model_type == "reward"
+        model_type == "critic" or "reward" in model_type
     ), f"invalid model_type: {model_type}, should be critic or reward."
 
     config = AutoConfig.from_pretrained(model_name_or_path, trust_remote_code=True)
@@ -58,7 +59,9 @@ def get_llm_for_sequence_regression(
     try:
         base_class = AutoModel._model_mapping[type(config)]
         base_pretrained_class = base_class.__base__
-        if model_type == "reward":
+        if model_type == "reward_new":
+            cls_class = _get_reward_model2(base_pretrained_class, base_class)
+        elif model_type == "reward":
             cls_class = _get_reward_model(base_pretrained_class, base_class)
         else:
             cls_class = _get_critic_model(base_pretrained_class, base_class)
@@ -86,7 +89,9 @@ def get_llm_for_sequence_regression(
             f"{module_file}.{pretrained_model_name}", model_name_or_path
         )
         base_class = get_class_from_dynamic_module(f"{module_file}.{auto_model_name}", model_name_or_path)
-        if model_type == "reward":
+        if model_type == "reward_new":
+            cls_class = _get_reward_model2(base_pretrained_class, base_class)
+        elif model_type == "reward":
             cls_class = _get_reward_model(base_pretrained_class, base_class)
         else:
             cls_class = _get_critic_model(base_pretrained_class, base_class)
@@ -115,12 +120,13 @@ def get_llm_for_sequence_regression(
         data_type = torch.float16
     else:
         data_type = 'auto'
-    
+
     model = cls_class.from_pretrained(
         model_name_or_path,
+        output_attentions=output_attentions,
         config=config,
         trust_remote_code=True,
-        torch_dtype=data_type ,
+        torch_dtype=data_type,
         quantization_config=nf4_config,
         device_map=device_map,
         **kwargs,
@@ -173,8 +179,9 @@ def _get_reward_model(base_pretrained_model, base_llm_model):
     class LLMForSequenceRegression(base_pretrained_model):
         supports_gradient_checkpointing = True
 
-        def __init__(self, config: AutoConfig):
-            super().__init__(config)
+        def __init__(self, config: AutoConfig, output_attentions=False):
+            config.output_attentions = output_attentions
+            super().__init__(config, output_attentions=output_attentions)
             setattr(self, self.base_model_prefix, base_llm_model(config))
 
             self.value_head = nn.Linear(config.hidden_size, 1, bias=False)
@@ -193,17 +200,18 @@ def _get_reward_model(base_pretrained_model, base_llm_model):
             self,
             input_ids: torch.LongTensor = None,
             attention_mask: Optional[torch.Tensor] = None,
+            prompts_id_len = None,
             return_output=False,
         ) -> torch.Tensor:
             # https://github.com/OpenLLMAI/OpenRLHF/issues/217
             position_ids = attention_mask.long().cumsum(-1) - 1
             position_ids.masked_fill_(attention_mask == 0, 1)
             outputs = getattr(self, self.base_model_prefix)(
-                input_ids, attention_mask=attention_mask, position_ids=position_ids
+                input_ids, attention_mask=attention_mask, position_ids=position_ids,
             )
+
             last_hidden_states = outputs["last_hidden_state"]
             values = self.value_head(last_hidden_states).squeeze(-1)
-
             # left padding in training mode
             if self.training:
                 reward = values[:, -1]
@@ -214,6 +222,7 @@ def _get_reward_model(base_pretrained_model, base_llm_model):
                 # normalize reward in eval mode
                 if self.normalize_reward:
                     reward = (reward - self.mean) / self.std
+            
             if return_output:
                 return reward, outputs
             else:
@@ -221,6 +230,68 @@ def _get_reward_model(base_pretrained_model, base_llm_model):
 
     return LLMForSequenceRegression
 
+def _get_reward_model2(base_pretrained_model, base_llm_model):
+    class LLMForSequenceRegression(base_pretrained_model):
+        supports_gradient_checkpointing = True
+
+        def __init__(self, config: AutoConfig, output_attentions=False):
+            config.output_attentions = output_attentions
+            super().__init__(config, output_attentions=output_attentions)
+            setattr(self, self.base_model_prefix, base_llm_model(config))
+            reward_dims = 2
+            self.value_head = nn.Linear(config.hidden_size, reward_dims, bias=False)
+            self.value_head2 = nn.Linear(config.hidden_size, reward_dims, bias=False)
+            # mean std
+            self.normalize_reward = config.normalize_reward
+            self.register_buffer("mean", torch.zeros(1), persistent=False)
+            self.register_buffer("std", torch.ones(1), persistent=False)
+
+            # load mean/std from config.json
+            if hasattr(config, "mean"):
+                self.mean[0] = config.mean
+                self.std[0] = config.std
+
+        def forward(
+            self,
+            input_ids: torch.LongTensor = None,
+            attention_mask: Optional[torch.Tensor] = None,
+            prompts_id_len: Optional[torch.Tensor] = None,
+            return_output=False,
+        ) -> torch.Tensor:
+            position_ids = attention_mask.long().cumsum(-1) - 1
+            position_ids.masked_fill_(attention_mask == 0, 1)
+            outputs = getattr(self, self.base_model_prefix)(
+                input_ids, attention_mask=attention_mask, position_ids=position_ids,
+            )
+            # prompts_id_len
+            last_hidden_states = outputs["last_hidden_state"]
+            values = self.value_head(last_hidden_states).squeeze(-1)
+            values2 = self.value_head2(last_hidden_states).squeeze(-1)
+            # left padding in training mode
+            if self.training:
+                indices = prompts_id_len.to(values.device).unsqueeze(1).expand(-1, 2)
+                reward1 = values2.gather(dim=1, index=indices.unsqueeze(-1)).squeeze(-1)
+                reward2 = values[:, -1]
+                reward = torch.mean(torch.stack((reward1, reward2), dim = 1), dim = 1)
+            else:
+                eos_indices = attention_mask.size(1) - 1 - attention_mask.long().fliplr().argmax(dim=1, keepdim=True)
+                indices = prompts_id_len.to(values.device).unsqueeze(1).expand(-1, 2)
+                reward1 = values2.gather(dim=1, index=indices.unsqueeze(-1)).squeeze(-1)
+                eos_indices = eos_indices.expand(-1, 2)
+                reward2 = values.gather(dim=1, index=eos_indices.unsqueeze(-1)).squeeze(-1)
+                reward = torch.mean(torch.stack((reward1, reward2), dim = 1), dim = 1)
+
+                if self.normalize_reward:
+                    reward = (reward - self.mean) / self.std
+
+            if return_output:
+                outputs['reward1'] = reward1
+                outputs['reward2'] = reward2
+                return reward, outputs
+            else:
+                return reward
+
+    return LLMForSequenceRegression
 
 def _get_critic_model(base_pretrained_model, base_llm_model):
     class LLMForSequenceRegression(base_pretrained_model):
@@ -257,6 +328,7 @@ def _get_critic_model(base_pretrained_model, base_llm_model):
                 attention_mask=attention_mask,
                 position_ids=position_ids,
             )
+           
             last_hidden_states = outputs["last_hidden_state"]
             values = self.value_head(last_hidden_states).squeeze(-1)[:, :-1]
             num_actions = action_mask.size(1)

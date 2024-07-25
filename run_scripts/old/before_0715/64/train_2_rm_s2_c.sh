@@ -13,7 +13,7 @@ data_path="/data2/rlhf/yzy/data/rm/pairwise_critic_train_guide_qwen_300k"
 
 # model_path="/data2/rlhf/lixs/open_models/DeepSeek-V2-Lite-Chat"
 model_path="/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/"
-BATCH_SIZE_PER_GPU=1
+BATCH_SIZE_PER_GPU=2
 LR=9e-6
 
 #/eb_data
@@ -43,8 +43,8 @@ read -r -d '' training_commands <<EOF
      --max_len 2048 \
      --zero_stage 3 \
      --l2 0.0001 \
-     --eval_steps 250 \
-     --save_steps 500 \
+     --eval_steps 500 \
+     --save_steps 1000 \
      --learning_rate $LR\
      --dataset $data_path \
      --dataset_probs 1 \
@@ -56,31 +56,8 @@ read -r -d '' training_commands <<EOF
      --wandb_project rl_critic_test \
      --mode c
 EOF
-deepspeed --hostfile $hostfile $training_commands 2>&1 | tee $save_path/train_qwen.log
-
-# MODEL=""
-# # inference critic
-# read -r -d '' training_commands <<EOF
-# ../../examples/batch_inference.py \
-#     --eval_task generate \
-#     --pretrain $MODEL \
-#     --bf16 \
-#     --max_len 6400 \
-#     --dataset $DATA \
-#     --dataset2 $DATA2 \
-#     --dataset_probs 1.0 \
-#     --zero_stage 0 \
-#     --tp_size 4 \
-#     --greedy_sampling \
-#     --micro_batch_size $BATCH_SIZE_PER_GPU \
-#     --flash_attn \
-#     --max_new_tokens 128 \
-#     --input_template Human \
-#     --output_path $save_path/$File_NAME
-# EOF
-
-# deepspeed $training_commands 2>&1 | tee $save_path/train_qwen_inference.log
-
+# deepspeed --hostfile $hostfile $training_commands 2>&1 | tee $save_path/train_qwen.log
+deepspeed $training_commands 2>&1 | tee $save_path/train_qwen.log
 
 # # train reward model
 # read -r -d '' training_commands <<EOF

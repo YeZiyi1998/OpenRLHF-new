@@ -22,6 +22,10 @@ random.seed(seed)
 np.random.seed(seed)
 import json
 from gstop import GenerationStopper
+import gc
+from deepspeed.accelerator import get_accelerator
+gc.collect()
+get_accelerator().empty_cache()
 
 def batch_generate_vllm(args):
     from vllm import LLM, SamplingParams
@@ -123,12 +127,18 @@ def batch_generate(args):
     def tokenize_fn(texts):
         batch = tokenizer(texts, return_tensors="pt", max_length=args.prompt_max_len, padding=True, truncation=True,)
         return {k: v.to(torch.cuda.current_device()) for k, v in batch.items()}
-
-    prompts_data = load_data(args.dataset, is_test=False, is_arrow = True)
-    if args.dataset2 is not None:
-        data2 = load_data(args.dataset2, is_test=False, is_arrow = True, max_samples=args.max_samples)
-        prompts_data = concatenate_datasets([prompts_data, data2])
-        args.dataset2 = len(data2)
+    if os.path.exists(os.path.join(args.dataset, 'dataset_dict.json')):
+        for idx, split in enumerate(json.load(open(os.path.join(args.dataset, 'dataset_dict.json')))['splits']):
+            if idx == 0:
+                prompts_data = load_data(os.path.join(args.dataset, split), is_test=False, is_arrow = True)
+            else:
+                prompts_data = concatenate_datasets([prompts_data, load_data(os.path.join(args.dataset, split), is_test=False, is_arrow = True)])
+    else:
+        prompts_data = load_data(args.dataset, is_test=False, is_arrow = True)
+        if args.dataset2 is not None:
+            data2 = load_data(args.dataset2, is_test=False, is_arrow = True, max_samples=args.max_samples)
+            prompts_data = concatenate_datasets([prompts_data, data2])
+            args.dataset2 = len(data2)
 
     if args.iter is None:
         prompts_data = prompts_data.select(range(min(args.max_samples, len(prompts_data))))
@@ -212,11 +222,12 @@ def batch_generate(args):
                 for obj in reader:
                     output_dataset.append(obj)
             os.remove(file)
-        if args.dataset2 is not None:
-            output_dataset, output_dataset2 = output_dataset[:-args.dataset2], output_dataset[-args.dataset2:]
         jsonlines.open(args.output_path, mode="w").write_all(output_dataset)
-        if args.dataset2 is not None:
-            jsonlines.open(args.output_path+'.2', mode="w").write_all(output_dataset2)
+        # if args.dataset2 is not None:
+        #     output_dataset, output_dataset2 = output_dataset[:-args.dataset2], output_dataset[-args.dataset2:]
+        # jsonlines.open(args.output_path, mode="w").write_all(output_dataset)
+        # if args.dataset2 is not None:
+        #     jsonlines.open(args.output_path+'.2', mode="w").write_all(output_dataset2)
 
 
 def batch_rm_inference(args):

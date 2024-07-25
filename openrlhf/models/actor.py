@@ -106,14 +106,15 @@ class Actor(nn.Module):
         Tuple[torch.LongTensor, torch.LongTensor],
         Tuple[torch.LongTensor, torch.LongTensor, torch.BoolTensor],
     ]:
+
         generate_args = {
             "input_ids": input_ids,
             "top_k": kwargs.get("top_k", None),
             "top_p": kwargs.get("top_p", None),
             "do_sample": kwargs.get("do_sample", True),
-            "early_stopping": True,
+            "early_stopping": kwargs.get("early_stopping", True),
             "temperature": kwargs.get("temperature", 1),
-            "use_cache": True,
+            "use_cache": kwargs.get("use_cache", True),
             "num_beams": kwargs.get("num_beams", 1),
             "attention_mask": kwargs.get("attention_mask"),
             "eos_token_id": kwargs.get("eos_token_id"),

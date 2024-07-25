@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 import sys
 import torch
+import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 #print()
 from transformers.trainer import get_scheduler
@@ -13,10 +14,18 @@ from openrlhf.models import Actor, get_llm_for_sequence_regression
 from openrlhf.trainer import RewardModelTrainer2
 from openrlhf.utils import prepare_dataset, get_strategy, get_tokenizer
 import gc
+from datasets import Dataset
 from deepspeed.accelerator import get_accelerator
 gc.collect()
 get_accelerator().empty_cache()
 import torch.distributed as dist
+seed = 2021
+import random
+import numpy as np
+random.seed(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
+torch.cuda.manual_seed_all(seed)
 
 def train(args):
     # configure strategy
@@ -26,8 +35,22 @@ def train(args):
     strategy.print("starting..")
     # configure model
     # load huggingface model/config
-    model, model2, critic_model = None, None, None
-    if 's1' in args.mode:
+    model, critic_model = None, None
+    if 'new' in args.mode:
+        model = get_llm_for_sequence_regression( # s1 model
+            args.pretrain,
+            "reward_new",
+            use_flash_attention_2=args.flash_attn,
+            bf16=args.quantized_type,
+            load_in_4bit=args.load_in_4bit,
+            lora_rank=args.lora_rank,
+            lora_alpha=args.lora_alpha,
+            target_modules=args.target_modules,
+            ds_config=strategy.get_ds_train_config(is_actor=False),
+            init_value_head=args.max_epochs > 0,
+            output_attentions=args.output_attentions
+        )
+    elif 's' in args.mode:
         model = get_llm_for_sequence_regression( # s1 model
             args.pretrain,
             "reward",
@@ -38,22 +61,10 @@ def train(args):
             lora_alpha=args.lora_alpha,
             target_modules=args.target_modules,
             ds_config=strategy.get_ds_train_config(is_actor=False),
-            init_value_head=True,
+            init_value_head=args.max_epochs > 0,
+            output_attentions=args.output_attentions
         )
-    if 's2' in args.mode:
-        model2 = get_llm_for_sequence_regression( # s2 model
-            args.pretrain,
-            "reward",
-            use_flash_attention_2=args.flash_attn,
-            bf16=args.quantized_type,
-            load_in_4bit=args.load_in_4bit,
-            lora_rank=args.lora_rank,
-            lora_alpha=args.lora_alpha,
-            target_modules=args.target_modules,
-            ds_config=strategy.get_ds_train_config(is_actor=False),
-            init_value_head=True,
-        )
-    if 's2' in args.mode and 'c' in args.mode:
+    if 'c' in args.mode:
         critic_model = Actor( # critic_model
             args.pretrain,
             use_flash_attention_2=args.flash_attn,
@@ -67,7 +78,7 @@ def train(args):
 
     strategy.print("loaded..")
     # configure tokenizer
-    tokenizer = get_tokenizer(args.pretrain, model if 's1' in args.mode else model2, "left", strategy, use_fast=not args.disable_fast_tokenizer)
+    tokenizer = get_tokenizer(args.pretrain, model, "left", strategy, use_fast=not args.disable_fast_tokenizer)
 
     strategy.print(model)
 
@@ -79,10 +90,38 @@ def train(args):
 
     # ziyi
     # train_data, eval_data, test_data = train_data.select(range(10)), eval_data.select(range(10)), test_data.select(range(10))
-
-    train_dataset = PairwiseRewardDataset(train_data, tokenizer, args.max_len, strategy)
-    eval_dataset = PairwiseRewardDataset(eval_data, tokenizer, args.max_len, strategy)
-    test_dataset = PairwiseRewardDataset(test_data, tokenizer, args.max_len, strategy)
+    if args.add_data != 'None':
+        f = open(args.add_data)
+        p2g = {}
+        for line in f.readlines():
+            line = json.loads(line)
+            if type(line['prompt']) == list:
+                p2g[line['prompt'][0]['value']] = line['gen']
+            else:
+                p2g[line['prompt'].lstrip("<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>human\n").rstrip("<|im_end|>\n")] = line['gen']
+        dataset_list = [train_data, eval_data, test_data]
+        for idx, data in enumerate(dataset_list):
+            bug_rate = []
+            new_data = {'prompt_old':[]}
+            for i in range(len(data)):
+                for k in data[i].keys():
+                    if k not in new_data.keys():
+                        new_data[k] = []
+                    new_data[k].append(data[i][k])
+                new_data['prompt_old'].append(new_data['prompt'][-1])
+                if data[i]['prompt'] in p2g.keys():
+                    new_data['prompt'][-1] = data[i]['prompt'] + p2g[data[i]['prompt']]
+                    bug_rate.append(0)
+                else:
+                    bug_rate.append(1)
+            dataset_list[idx] = Dataset.from_dict(new_data)
+        train_data, eval_data, test_data = dataset_list
+        print('bug_rate: ', np.mean(bug_rate))
+        if np.mean(bug_rate) > 0.1:
+            exit()
+    train_dataset = PairwiseRewardDataset(train_data, tokenizer, args.max_len, strategy, args=args,)
+    eval_dataset = PairwiseRewardDataset(eval_data, tokenizer, args.max_len, strategy, args=args,)
+    test_dataset = PairwiseRewardDataset(test_data, tokenizer, args.max_len, strategy, args=args,)
 
     train_dataloader = strategy.setup_dataloader(train_dataset, args.micro_train_batch_size, True, True, train_dataset.collate_fn,)
     eval_dataloader = strategy.setup_dataloader(eval_dataset, args.micro_train_batch_size, True, False, eval_dataset.collate_fn)
@@ -95,9 +134,9 @@ def train(args):
     if args.gradient_checkpointing:
         if model is not None:
             model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": args.gradient_checkpointing_use_reentrant})
-        if model2 is not None:
-            model2.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": args.gradient_checkpointing_use_reentrant})
-
+        if critic_model is not None:
+            critic_model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": args.gradient_checkpointing_use_reentrant})
+    
     def initialize_optim_scheduler(model, model2=None):
          # configure optimizer
         optim = strategy.create_optimizer(model, lr=args.learning_rate, betas=(0.9, 0.95), weight_decay=args.l2)
@@ -121,13 +160,14 @@ def train(args):
             (model2, optim2, scheduler2),
         )
 
-    optim_c, scheduler_c = None, None
-    if model is not None:
+    optim, scheduler, optim_c, scheduler_c = None, None, None, None
+    
+    if critic_model is not None and model is not None:
+        (critic_model, optim_c, scheduler_c), (model, optim, scheduler) = initialize_optim_scheduler(critic_model, model)
+    elif critic_model is not None:
+        (critic_model, optim_c, scheduler_c) = initialize_optim_scheduler(critic_model,)
+    elif model is not None:
         (model, optim, scheduler) = initialize_optim_scheduler(model)
-    if critic_model is not None and model2 is not None:
-        (critic_model, optim_c, scheduler_c), (model2, optim, scheduler) = initialize_optim_scheduler(critic_model, model2)
-    elif model2 is not None:
-        (model2, optim, scheduler) = initialize_optim_scheduler(model2)
     
     if args.load_checkpoint:
         strategy.print("Load checkpoint: ", args.save_path)
@@ -138,7 +178,6 @@ def train(args):
     # we use merged chosen + rejected response forward
     trainer = RewardModelTrainer2(
         model=model,
-        model2=model2,
         critic_model=critic_model,
         strategy=strategy,
         optim=optim,
@@ -151,23 +190,27 @@ def train(args):
         max_norm=args.max_norm,
         max_epochs=args.max_epochs,
         loss=args.loss,
-        mode = args.mode
+        mode = args.mode,
     )
 
     trainer.fit(args)
 
-    test_dataloader = strategy.setup_dataloader(test_dataset, args.micro_train_batch_size, True, False, eval_dataset.collate_fn)
+    test_dataloader = strategy.setup_dataloader(test_dataset, args.micro_train_batch_size, True, False, eval_dataset.collate_fn, )
     local_rank = dist.get_rank()
     os.makedirs(os.path.join(args.save_path, 'results/'), exist_ok=True)
     output_fname = os.path.join(os.path.join(args.save_path, 'results/'), f"predict_{local_rank}.json")
     output_file = open(output_fname, "w")
-    trainer.test(test_dataloader, get_token_info=False, output_file=output_file)
+    trainer.test(test_dataloader, get_token_info=args.get_token_info, output_file=output_file, )
 
     if local_rank == 0:
         read_all_shard_and_evaluate(os.path.join(args.save_path, 'results/'))
     # save model checkpoint after fitting on only rank0
-    trainer.model_list.save(strategy, tokenizer, args.save_path)
-
+    if args.max_epochs > 0:
+        if args.mode == 'c':
+            strategy.save_model(critic_model, tokenizer, os.path.join(args.save_path, 'c'))
+        if 's' in args.mode:
+            strategy.save_model(model, tokenizer, os.path.join(args.save_path, args.mode))
+        # trainer.model_list.save(strategy, tokenizer, args.save_path)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -236,7 +279,11 @@ if __name__ == "__main__":
     )
 
     parser.add_argument("--mode", type=str, default="s1")
-
+    parser.add_argument("--get_token_info", type=str, default="False")
+    parser.add_argument("--add_data", type=str, default="None")
+    parser.add_argument("--output_attentions", action="store_true", default=False)
+    
     torch.cuda.empty_cache()
     args = parser.parse_args()
+    args.get_token_info = args.get_token_info == 'True'
     train(args)
