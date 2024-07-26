@@ -36,7 +36,7 @@ def train(args):
     # configure model
     # load huggingface model/config
     model, critic_model = None, None
-    if 'new' in args.mode:
+    if 's' in args.mode:
         model = get_llm_for_sequence_regression( # s1 model
             args.pretrain,
             "reward_new",
@@ -48,21 +48,8 @@ def train(args):
             target_modules=args.target_modules,
             ds_config=strategy.get_ds_train_config(is_actor=False),
             init_value_head=args.max_epochs > 0,
-            output_attentions=args.output_attentions
-        )
-    elif 's' in args.mode:
-        model = get_llm_for_sequence_regression( # s1 model
-            args.pretrain,
-            "reward",
-            use_flash_attention_2=args.flash_attn,
-            bf16=args.quantized_type,
-            load_in_4bit=args.load_in_4bit,
-            lora_rank=args.lora_rank,
-            lora_alpha=args.lora_alpha,
-            target_modules=args.target_modules,
-            ds_config=strategy.get_ds_train_config(is_actor=False),
-            init_value_head=args.max_epochs > 0,
-            output_attentions=args.output_attentions
+            output_attentions=args.output_attentions,
+            mode = args.mode
         )
     if 'c' in args.mode:
         critic_model = Actor( # critic_model
@@ -102,15 +89,14 @@ def train(args):
         dataset_list = [train_data, eval_data, test_data]
         for idx, data in enumerate(dataset_list):
             bug_rate = []
-            new_data = {'prompt_old':[]}
+            new_data = {'gen':[]}
             for i in range(len(data)):
                 for k in data[i].keys():
                     if k not in new_data.keys():
                         new_data[k] = []
                     new_data[k].append(data[i][k])
-                new_data['prompt_old'].append(new_data['prompt'][-1])
                 if data[i]['prompt'] in p2g.keys():
-                    new_data['prompt'][-1] = data[i]['prompt'] + p2g[data[i]['prompt']]
+                    new_data['gen'][-1] = p2g[data[i]['prompt']]
                     bug_rate.append(0)
                 else:
                     bug_rate.append(1)
@@ -233,7 +219,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_norm", type=float, default=1.0)
     parser.add_argument("--max_len", type=int, default=4096)
     parser.add_argument("--l2", type=float, default=0.0)
-    parser.add_argument("--loss", type=str, default="sigmoid")
+    parser.add_argument("--loss", type=str, default="bce")
     parser.add_argument("--gradient_checkpointing", action="store_true", default=False)
     parser.add_argument("--seed", type=int, default=42)
 

@@ -32,6 +32,7 @@ def get_llm_for_sequence_regression(
     init_value_head: bool = False,
     device_map=None,
     output_attentions = False,
+    mode='s1',
     **kwargs,
 ) -> nn.Module:
     """Get transformer with a sequence classification head on top (linear layer).
@@ -60,7 +61,7 @@ def get_llm_for_sequence_regression(
         base_class = AutoModel._model_mapping[type(config)]
         base_pretrained_class = base_class.__base__
         if model_type == "reward_new":
-            cls_class = _get_reward_model2(base_pretrained_class, base_class)
+            cls_class = _get_reward_model2(base_pretrained_class, base_class, mode, loss='bce')
         elif model_type == "reward":
             cls_class = _get_reward_model(base_pretrained_class, base_class)
         else:
@@ -90,7 +91,7 @@ def get_llm_for_sequence_regression(
         )
         base_class = get_class_from_dynamic_module(f"{module_file}.{auto_model_name}", model_name_or_path)
         if model_type == "reward_new":
-            cls_class = _get_reward_model2(base_pretrained_class, base_class)
+            cls_class = _get_reward_model2(base_pretrained_class, base_class, mode, loss='bce')
         elif model_type == "reward":
             cls_class = _get_reward_model(base_pretrained_class, base_class)
         else:
@@ -230,7 +231,7 @@ def _get_reward_model(base_pretrained_model, base_llm_model):
 
     return LLMForSequenceRegression
 
-def _get_reward_model2(base_pretrained_model, base_llm_model):
+def _get_reward_model2(base_pretrained_model, base_llm_model, mode, loss):
     class LLMForSequenceRegression(base_pretrained_model):
         supports_gradient_checkpointing = True
 
@@ -238,9 +239,16 @@ def _get_reward_model2(base_pretrained_model, base_llm_model):
             config.output_attentions = output_attentions
             super().__init__(config, output_attentions=output_attentions)
             setattr(self, self.base_model_prefix, base_llm_model(config))
-            reward_dims = 2
+            self.loss = loss
+            
+            if loss == 'bce':
+                reward_dims = 1
+            else:
+                reward_dims = 2
             self.value_head = nn.Linear(config.hidden_size, reward_dims, bias=False)
-            self.value_head2 = nn.Linear(config.hidden_size, reward_dims, bias=False)
+            self.mode = mode
+            if '2' in mode:
+                self.value_head2 = nn.Linear(config.hidden_size, reward_dims, bias=True)
             # mean std
             self.normalize_reward = config.normalize_reward
             self.register_buffer("mean", torch.zeros(1), persistent=False)
@@ -266,27 +274,50 @@ def _get_reward_model2(base_pretrained_model, base_llm_model):
             # prompts_id_len
             last_hidden_states = outputs["last_hidden_state"]
             values = self.value_head(last_hidden_states).squeeze(-1)
-            values2 = self.value_head2(last_hidden_states).squeeze(-1)
+            if '2' in self.mode:
+                values2 = self.value_head2(last_hidden_states).squeeze(-1)
             # left padding in training mode
+
             if self.training:
-                indices = prompts_id_len.to(values.device).unsqueeze(1).expand(-1, 2)
-                reward1 = values2.gather(dim=1, index=indices.unsqueeze(-1)).squeeze(-1)
-                reward2 = values[:, -1]
-                reward = torch.mean(torch.stack((reward1, reward2), dim = 1), dim = 1)
+                if '2' in self.mode:
+                    reward2 = values[:, -1]
+                    if self.loss == 'bce':
+                        reward1 = torch.gather(values2, 1, prompts_id_len.view(-1, 1).to(values2.device)).squeeze(1)
+                        # reward = torch.mean(torch.stack((reward1, reward2)), dim = 0)
+                        reward = reward1 + reward2
+                        reward = reward1
+                    else:
+                        reward1 = torch.gather(values2, 1, prompts_id_len.view(-1, 1, 1).expand(-1, 1, 2).to(values2.device)).squeeze(1)
+                        # reward = torch.mean(torch.stack((reward1, reward2), dim = 1), dim = 1)
+                        reward = reward1 + reward2
+                        reward = reward1
+                else:
+                    reward = values[:, -1]
             else:
                 eos_indices = attention_mask.size(1) - 1 - attention_mask.long().fliplr().argmax(dim=1, keepdim=True)
-                indices = prompts_id_len.to(values.device).unsqueeze(1).expand(-1, 2)
-                reward1 = values2.gather(dim=1, index=indices.unsqueeze(-1)).squeeze(-1)
-                eos_indices = eos_indices.expand(-1, 2)
-                reward2 = values.gather(dim=1, index=eos_indices.unsqueeze(-1)).squeeze(-1)
-                reward = torch.mean(torch.stack((reward1, reward2), dim = 1), dim = 1)
-
+                if '2' in self.mode:
+                    eos_indices = eos_indices.view(-1, 1, 1).expand(-1, 1, 2)
+                    reward2 = torch.gather(values, 1, index=eos_indices).squeeze(1)
+                    if self.loss == 'bce':
+                        reward1 = torch.gather(values2, 1, prompts_id_len.view(-1, 1).to(values2.device)).squeeze(1)
+                        # reward = torch.mean(torch.stack((reward1, reward2)), dim = 0)
+                        reward = reward1 + reward2
+                        reward = reward1
+                    else:
+                        reward1 = torch.gather(values2, 1, prompts_id_len.view(-1, 1, 1).expand(-1, 1, 2).to(values2.device)).squeeze(1)
+                        # reward = torch.mean(torch.stack((reward1, reward2), dim = 1), dim = 1)
+                        reward = reward1 + reward2
+                        reward = reward1
+                else:
+                    reward = torch.gather(values, dim=1, index=eos_indices.view(-1, 1)).squeeze(1)
+               
                 if self.normalize_reward:
                     reward = (reward - self.mean) / self.std
 
             if return_output:
-                outputs['reward1'] = reward1
-                outputs['reward2'] = reward2
+                if '2' in self.mode:
+                    outputs['reward1'] = reward1
+                    outputs['reward2'] = reward2
                 return reward, outputs
             else:
                 return reward

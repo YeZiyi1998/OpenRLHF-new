@@ -43,7 +43,7 @@ class RewardModelTrainer2(ABC):
         tokenizer,
         max_norm=0.5,
         max_epochs: int = 2,
-        loss="sigmoid",
+        loss="bce",
         mode = 's1',
     ) -> None:
         super().__init__()
@@ -61,8 +61,11 @@ class RewardModelTrainer2(ABC):
         self.optimizer_c = optim_c
         self.tokenizer = tokenizer
         self.args = strategy.args
-        # self.loss_fn = nn.MSELoss()
-        self.loss_fn = nn.CrossEntropyLoss()
+        self.loss = loss
+        if loss == 'bce':
+            self.loss_fn = nn.BCEWithLogitsLoss()
+        else:
+            self.loss_fn = nn.CrossEntropyLoss()
         self.gpt_loss_fn = GPTLMLoss()
 
         # Mixtral 8*7b
@@ -124,6 +127,7 @@ class RewardModelTrainer2(ABC):
         else:
             margin = None
         loss, all_values = 0, None
+        
         if 's' in mode:
             all_values, output = self.model(prompt_ids, attention_mask=prompt_mask, prompts_id_len=prompts_id_len, return_output=True, )
             if self.args.output_attentions:
@@ -140,8 +144,17 @@ class RewardModelTrainer2(ABC):
                 logits = output['last_hidden_state'].squeeze(-1).detach().cpu().float().numpy()[:,-1,:].tolist()
             if self.compute_fp32_loss:
                 all_values = all_values.float()
-            loss = self.loss_fn(all_values, (chosens - 1).long())
-
+            # jiayudebug snippet
+            import pdb
+            import torch.distributed as dist
+            if dist.get_rank() == 0:
+                pdb.set_trace()
+            dist.barrier()
+            if self.loss == 'bce':
+                loss = self.loss_fn(all_values, chosens)
+            else:
+                loss = self.loss_fn(all_values, chosens.long())
+           
         if 'c' == mode:
             labels = torch.where(prompt_mask.bool(), prompt_ids, self.gpt_loss_fn.IGNORE_INDEX,)
             for label, source_len in zip(labels, prompts_id_len):
@@ -158,6 +171,21 @@ class RewardModelTrainer2(ABC):
             return loss, all_values, aux_loss, logits
         else:
             return loss, all_values, aux_loss
+
+    def get_acc(self, all_values, chosens, split=False):
+        if split:
+            if self.loss == 'bce':
+                probs = (torch.sigmoid(all_values) >= 0.5).float()
+                return (probs == (chosens)).int()
+            else:
+                return (torch.max(all_values, 1)[1] == (chosens)).int()
+        else:
+            if self.loss == 'bce':
+                probs = (torch.sigmoid(all_values) >= 0.5).float()
+                return (probs == (chosens)).sum().item() / len(chosens)
+            else:
+                return (torch.max(all_values, 1)[1] == (chosens)).sum().item() / len(chosens)
+
 
     def fit(self, args):
         # get eval and save steps
@@ -179,7 +207,7 @@ class RewardModelTrainer2(ABC):
             if isinstance(self.train_dataloader.sampler, DistributedSampler):
                 self.train_dataloader.sampler.set_epoch(epoch)
 
-            acc_mean = 0
+            acc_mean = 0.5
             loss_mean = 0
 
             for prompt_ids, prompt_mask, chosens, extra, meta_info, prompts_id_len in self.train_dataloader:
@@ -198,13 +226,16 @@ class RewardModelTrainer2(ABC):
                     self.step(self.strategy, loss, self.optimizer_c, self.scheduler_c, self.critic_model)      
                 if 's' in mode:
                     self.step(self.strategy, loss, self.optimizer, self.scheduler, self.model)
-                    acc_mean = acc_mean * 0.9 + 0.1 * (torch.max(all_values, 1)[1] == (chosens - 1)).sum().item() / len(chosens)
+                acc = self.get_acc(all_values, chosens)
+                acc_mean = acc_mean * 0.9 + 0.1 * acc
+
                 loss = loss.item()
                 loss_mean = loss_mean * 0.9 + 0.1 * loss
                 # optional rm info
                 logs_dict = {
                     "loss": loss,
                     "acc_mean": acc_mean,
+                    'acc': acc,
                     "loss_mean": loss_mean,
                 }
 
@@ -266,7 +297,7 @@ class RewardModelTrainer2(ABC):
                 loss, all_values, aux_loss = self.compute_model_list(prompt_ids, prompt_mask, chosens, prompt_ids_len, mode=mode)
                 if all_values is not None:
                     # acc += ((torch.abs(all_values - chosens) < 0.5).int()).float().mean().item()
-                    acc += (torch.max(all_values, 1)[1] == (chosens - 1)).sum().item() / len(chosens)
+                    acc += self.get_acc(all_values, chosens)
                 loss_sum += loss.item()
                 step_bar.update()
 
@@ -323,9 +354,10 @@ class RewardModelTrainer2(ABC):
 
                 all_info_dict = copy.deepcopy(all_info_dict_mode)
                 if all_values is not None:
-                    acc_bool1 = (torch.max(all_values, 1)[1] == (chosens - 1)).item()
-                    acc += acc_bool1.sum() / len(chosens)
-                    acc_list.extend(acc_bool1.flatten().tolist())
+                    acc_bool1 = self.get_acc(all_values, chosens, split = True)
+                    # acc_bool1 = (torch.max(all_values, 1)[1] == (chosens)).int()
+                    acc += acc_bool1.float().mean().item() 
+                    acc_list.extend(acc_bool1.float().flatten().tolist())
                     all_info_dict['acc'] = (acc_bool1.flatten().tolist())
 
                 tags.extend([meta["tag"] for meta in meta_infos])

@@ -20,8 +20,8 @@ else
   add_data="/data2/rlhf/yzy/OpenRLHF-new/outputs/0724/inference/Qwen_Critic_machine_$3/Qwen_Critic_machine.jsonl"
 fi
 
-model_path="/data2/rlhf/yzy/open_models/models--Qwen--Qwen2-1.5B-Instruct/snapshots/ba1cf1846d7df0a0591d6c00649f57e798519da8"
-# model_path="/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/"
+# model_path="/data2/rlhf/yzy/open_models/models--Qwen--Qwen2-1.5B-Instruct/snapshots/ba1cf1846d7df0a0591d6c00649f57e798519da8"
+model_path="/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/"
 BATCH_SIZE_PER_GPU=16
 LR=9e-6
 
@@ -48,7 +48,7 @@ read -r -d '' training_commands <<EOF
      --add_data $add_data \
      --quantized_type bf16 \
      --max_epochs 1 \
-     --max_len 2048 \
+     --max_len 2560 \
      --zero_stage 3 \
      --l2 0.0001 \
      --eval_steps 250 \

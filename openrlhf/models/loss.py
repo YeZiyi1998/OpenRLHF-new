@@ -94,7 +94,6 @@ class PairWiseLoss(nn.Module,):
         else:
             return loss.mean()
 
-
 class LogExpLoss(nn.Module):
     """
     Pairwise Loss for Reward Model

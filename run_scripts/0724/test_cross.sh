@@ -13,7 +13,7 @@ python /data2/rlhf/yzy/write_email.py --info $EXP_NAME
 WANDB_TOKENS=a77607626908409e45afa2ca225cf179e9a316fc
 wandb login --relogin $WANDB_TOKENS
 
-data_path="/data2/rlhf/yzy/data/sub_data/pairwise_critic_inference/$3"
+data_path="/data2/rlhf/yzy/data/sub_data/pairwise_critic_inference2/$3"
 if [ "$2" = "s1" ]; then
   add_data="None"
 else
@@ -21,7 +21,9 @@ else
 fi
 
 model_path="/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_pairwise_s1_96_math/s1"
+model_path="/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_pairwise_96_s1_数学计算/s1"
 BATCH_SIZE_PER_GPU=16
+BATCH_SIZE_PER_GPU=1
 LR=9e-6
 
 #/eb_data

@@ -253,8 +253,6 @@ class PairwiseRewardDataset(Dataset):
                 'tag': data['tag'],
                 'chosen': data['chosen']
             }
-            margin = 0
-
             if self.is_dpo:
                 tmp_prompt = data['prompt_old'] if 'new' in self.args.mode else data['prompt']
                 prompt_token = self.tokenizer(
@@ -270,10 +268,10 @@ class PairwiseRewardDataset(Dataset):
                     continue
                 self.prompt_ids_lens.append(prompt_ids_len)
             else:
-                self.margins.append(margin)
+                self.margins.append(0)
             if 'new' in self.args.mode:
                 self.old_prompts.append(data['prompt_old'])
-            self.chosens.append(data['chosen'])
+            self.chosens.append(int(data['chosen'] - 1))
             self.prompts.append(data['prompt'])
             self.gen.append(gen)
             self.meta_infos.append(meta_info)
@@ -291,7 +289,7 @@ class PairwiseRewardDataset(Dataset):
         prompt = prompt.rstrip()
         prompt_token = self.tokenizer(
             prompt,
-            max_length=self.max_length + 512,
+            max_length=self.max_length,
             padding=False,
             truncation=True,
             return_tensors="pt",
@@ -308,6 +306,7 @@ class PairwiseRewardDataset(Dataset):
             prompt_ids_len = old_prompt_token["attention_mask"].int().sum().item()
         else:
             prompt_ids_len = prompt_token["attention_mask"].int().sum().item()
+        
         if self.args.mode == 'c':
             prompt = (prompt + gen).rstrip()
             prompt_token = self.tokenizer(
@@ -344,7 +343,7 @@ class PairwiseRewardDataset(Dataset):
             extras.append(extra)
             meta_infos.append(meta_info)
             chosens.append(chosen)
-            prompt_ids_lens.append(prompt_ids_len)
+            prompt_ids_lens.append(prompt_ids_len - 1)
 
         chosen_ids = zero_pad_sequences(chosen_ids, value=self.tokenizer.pad_token_id)
         chosen_masks = zero_pad_sequences(chosen_masks)
