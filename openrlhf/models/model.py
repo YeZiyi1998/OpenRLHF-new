@@ -274,40 +274,32 @@ def _get_reward_model2(base_pretrained_model, base_llm_model, mode, loss):
             # prompts_id_len
             last_hidden_states = outputs["last_hidden_state"]
             values = self.value_head(last_hidden_states).squeeze(-1)
-            if '2' in self.mode:
+            if 'new' in self.mode:
                 values2 = self.value_head2(last_hidden_states).squeeze(-1)
             # left padding in training mode
 
             if self.training:
-                if '2' in self.mode:
+                if 'new' in self.mode:
                     reward2 = values[:, -1]
                     if self.loss == 'bce':
-                        reward1 = torch.gather(values2, 1, prompts_id_len.view(-1, 1).to(values2.device)).squeeze(1)
-                        # reward = torch.mean(torch.stack((reward1, reward2)), dim = 0)
+                        reward1 = torch.gather(values2, 1, values2.shape[1]-prompts_id_len.view(-1, 1).to(values2.device)).squeeze(1)
                         reward = reward1 + reward2
-                        reward = reward1
                     else:
-                        reward1 = torch.gather(values2, 1, prompts_id_len.view(-1, 1, 1).expand(-1, 1, 2).to(values2.device)).squeeze(1)
-                        # reward = torch.mean(torch.stack((reward1, reward2), dim = 1), dim = 1)
+                        reward1 = torch.gather(values2, 1, values2.shape[1]-prompts_id_len.view(-1, 1, 1).expand(-1, 1, 2).to(values2.device)).squeeze(1)
                         reward = reward1 + reward2
-                        reward = reward1
                 else:
                     reward = values[:, -1]
             else:
                 eos_indices = attention_mask.size(1) - 1 - attention_mask.long().fliplr().argmax(dim=1, keepdim=True)
-                if '2' in self.mode:
-                    eos_indices = eos_indices.view(-1, 1, 1).expand(-1, 1, 2)
-                    reward2 = torch.gather(values, 1, index=eos_indices).squeeze(1)
+                if 'new' in self.mode:                    
                     if self.loss == 'bce':
-                        reward1 = torch.gather(values2, 1, prompts_id_len.view(-1, 1).to(values2.device)).squeeze(1)
-                        # reward = torch.mean(torch.stack((reward1, reward2)), dim = 0)
+                        reward2 = torch.gather(values, 1, index=eos_indices.view(-1, 1)).squeeze(1)
+                        reward1 = torch.gather(values2, 1, values2.shape[1]-prompts_id_len.view(-1, 1).to(values2.device)).squeeze(1)
                         reward = reward1 + reward2
-                        reward = reward1
                     else:
-                        reward1 = torch.gather(values2, 1, prompts_id_len.view(-1, 1, 1).expand(-1, 1, 2).to(values2.device)).squeeze(1)
-                        # reward = torch.mean(torch.stack((reward1, reward2), dim = 1), dim = 1)
+                        reward2 = torch.gather(values, 1, index=eos_indices.view(-1, 1, 1).expand(-1, 1, 2)).squeeze(1)
+                        reward1 = torch.gather(values2, 1, values2.shape[1]-prompts_id_len.view(-1, 1, 1).expand(-1, 1, 2).to(values2.device)).squeeze(1)
                         reward = reward1 + reward2
-                        reward = reward1
                 else:
                     reward = torch.gather(values, dim=1, index=eos_indices.view(-1, 1)).squeeze(1)
                
@@ -315,7 +307,7 @@ def _get_reward_model2(base_pretrained_model, base_llm_model, mode, loss):
                     reward = (reward - self.mean) / self.std
 
             if return_output:
-                if '2' in self.mode:
+                if 'new' in self.mode:
                     outputs['reward1'] = reward1
                     outputs['reward2'] = reward2
                 return reward, outputs

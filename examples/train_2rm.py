@@ -96,11 +96,13 @@ def train(args):
                         new_data[k] = []
                     new_data[k].append(data[i][k])
                 if data[i]['prompt'] in p2g.keys():
-                    new_data['gen'][-1] = p2g[data[i]['prompt']]
+                    new_data['gen'][-1] = p2g[data[i]['prompt']] if len(p2g[data[i]['prompt']].strip()) > 0 else 'assistant'
                     bug_rate.append(0)
                 else:
+                    new_data['gen'][-1] = 'assistant'
                     bug_rate.append(1)
             dataset_list[idx] = Dataset.from_dict(new_data)
+            # length_list = ([len(tokenizer.encode(item)) for item in new_data['gen']])
         train_data, eval_data, test_data = dataset_list
         print('bug_rate: ', np.mean(bug_rate))
         if np.mean(bug_rate) > 0.1:

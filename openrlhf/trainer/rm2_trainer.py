@@ -144,12 +144,7 @@ class RewardModelTrainer2(ABC):
                 logits = output['last_hidden_state'].squeeze(-1).detach().cpu().float().numpy()[:,-1,:].tolist()
             if self.compute_fp32_loss:
                 all_values = all_values.float()
-            # jiayudebug snippet
-            import pdb
-            import torch.distributed as dist
-            if dist.get_rank() == 0:
-                pdb.set_trace()
-            dist.barrier()
+
             if self.loss == 'bce':
                 loss = self.loss_fn(all_values, chosens)
             else:

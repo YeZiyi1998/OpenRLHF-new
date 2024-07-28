@@ -234,7 +234,7 @@ class PairwiseRewardDataset(Dataset):
         super().__init__()
         self.is_dpo = is_dpo
         self.chosens = []
-        self.prompts, self.old_prompts = [], []
+        self.prompts = []
         self.gen = []
         self.meta_infos = []
         self.args=args
@@ -247,33 +247,15 @@ class PairwiseRewardDataset(Dataset):
         self.strategy = strategy
         self.max_length = max_length
         for data in tqdm(dataset, disable=not self.strategy.is_rank_0()):   
-            gen = data['gen']       
             meta_info = {
                 'test_id': data['test_id'],
                 'tag': data['tag'],
                 'chosen': data['chosen']
             }
-            if self.is_dpo:
-                tmp_prompt = data['prompt_old'] if 'new' in self.args.mode else data['prompt']
-                prompt_token = self.tokenizer(
-                    tmp_prompt,
-                    max_length=max_length,
-                    padding=False,
-                    truncation=True,
-                    return_tensors="pt",
-                )
-                prompt_ids_len = prompt_token["attention_mask"].int().sum().item()
-                # filter the sample whose length is greater than max_length (2 for answer length)
-                if prompt_ids_len >= self.max_length - 2:
-                    continue
-                self.prompt_ids_lens.append(prompt_ids_len)
-            else:
-                self.margins.append(0)
-            if 'new' in self.args.mode:
-                self.old_prompts.append(data['prompt_old'])
+            self.margins.append(0)
             self.chosens.append(int(data['chosen'] - 1))
             self.prompts.append(data['prompt'])
-            self.gen.append(gen)
+            self.gen.append(data['gen'])
             self.meta_infos.append(meta_info)
 
     def __len__(self):
@@ -282,32 +264,8 @@ class PairwiseRewardDataset(Dataset):
 
     def __getitem__(self, idx):
         prompt, gen, meta_info = self.prompts[idx], self.gen[idx], self.meta_infos[idx]
-        if self.is_dpo:
-            extra = self.prompt_ids_lens[idx]
-        else:
-            extra = self.margins[idx]
-        prompt = prompt.rstrip()
-        prompt_token = self.tokenizer(
-            prompt,
-            max_length=self.max_length,
-            padding=False,
-            truncation=True,
-            return_tensors="pt",
-        )
-        if 'new' in self.args.mode:
-            old_prompt = self.old_prompts[idx].rstrip()
-            old_prompt_token = self.tokenizer(
-                old_prompt,
-                max_length=self.max_length,
-                padding=False,
-                truncation=True,
-                return_tensors="pt",
-            )
-            prompt_ids_len = old_prompt_token["attention_mask"].int().sum().item()
-        else:
-            prompt_ids_len = prompt_token["attention_mask"].int().sum().item()
-        
-        if self.args.mode == 'c':
+        extra = self.margins[idx]
+        if self.args.mode == 'c' or self.args.mode == 's2':
             prompt = (prompt + gen).rstrip()
             prompt_token = self.tokenizer(
                 prompt,
@@ -316,10 +274,40 @@ class PairwiseRewardDataset(Dataset):
                 truncation=True,
                 return_tensors="pt",
             )
-
+        elif self.args.mode == 's1':
+            prompt = prompt.rstrip()
+            prompt_token = self.tokenizer(
+                prompt,
+                max_length=self.max_length,
+                padding=False,
+                truncation=True,
+                return_tensors="pt",
+            )
+        elif self.args.mode == 's2_new':
+            prompt = (prompt + gen).rstrip()
+            prompt_token = self.tokenizer(
+                prompt,
+                max_length=self.max_length,
+                padding=False,
+                truncation=True,
+                return_tensors="pt",
+            )
+        gen = gen.rstrip()
+        gen_token = self.tokenizer(
+            gen,
+            max_length=self.max_length,
+            padding=False,
+            truncation=True,
+            return_tensors="pt",
+        )
         # to avoid EOS_token truncation
         prompt_token["input_ids"][0][-1] = self.tokenizer.eos_token_id
         prompt_token["attention_mask"][0][-1] = True
+
+        if 's2' in self.args.mode:
+            prompt_ids_len = gen_token["attention_mask"].int().sum().item()
+        else:
+            prompt_ids_len = prompt_token["attention_mask"].int().sum().item()
 
         return (
             prompt_token["input_ids"],
@@ -343,8 +331,7 @@ class PairwiseRewardDataset(Dataset):
             extras.append(extra)
             meta_infos.append(meta_info)
             chosens.append(chosen)
-            prompt_ids_lens.append(prompt_ids_len - 1)
-
+            prompt_ids_lens.append(prompt_ids_len)
         chosen_ids = zero_pad_sequences(chosen_ids, value=self.tokenizer.pad_token_id)
         chosen_masks = zero_pad_sequences(chosen_masks)
         if 'new' in self.args.mode:

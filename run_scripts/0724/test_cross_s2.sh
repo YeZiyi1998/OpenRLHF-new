@@ -20,7 +20,7 @@ else
   add_data="/data2/rlhf/yzy/OpenRLHF-new/outputs/0724/inference/Qwen_Critic_machine_$3/Qwen_Critic_machine.jsonl"
 fi
 
-model_path="/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_pairwise_94_${2}_math/$2"
+model_path="/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_pairwise_94_${2}_数学计算/$2"
 BATCH_SIZE_PER_GPU=2
 LR=9e-6
 

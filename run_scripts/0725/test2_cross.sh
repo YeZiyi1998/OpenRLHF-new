@@ -13,14 +13,14 @@ EXP_NAME=Qwen_pairwise_$1_$2_$3
 WANDB_TOKENS=a77607626908409e45afa2ca225cf179e9a316fc
 wandb login --relogin $WANDB_TOKENS
 
-data_path="/data2/rlhf/yzy/data/sub_data/pairwise_critic_inference/$3"
+data_path="/data2/rlhf/yzy/data/sub_data/pairwise_critic_inference2/$3"
 if [ "$2" = "s1" ]; then
-  add_data=""
+  add_data="None"
 else
   add_data="/data2/rlhf/yzy/OpenRLHF-new/outputs/inference/Qwen_Critic_machine_$3/Qwen_Critic_machine.jsonl"
 fi
 
-model_path="/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_pairwise_94_${2}_数学计算/$2"
+model_path="/data2/rlhf/yzy/OpenRLHF-new/outputs/reward_models/Qwen_pairwise_${1}_${2}_数学计算/$2"
 BATCH_SIZE_PER_GPU=2
 LR=9e-6
 
