@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from transformers.trainer import get_scheduler
 from openrlhf.datasets.utils import read_all_shard_and_evaluate
 from openrlhf.datasets import PairwiseRewardDataset
-from openrlhf.models import Actor, get_llm_for_sequence_regression
+from openrlhf.models import Actor, get_llm_for_sequence_regression, Actor_with_cla
 from openrlhf.trainer import RewardModelTrainer2
 from openrlhf.utils import prepare_dataset, get_strategy, get_tokenizer
 import gc
@@ -36,6 +36,31 @@ def train(args):
     # configure model
     # load huggingface model/config
     model, critic_model = None, None
+    if 'm' in args.mode:
+        model = get_llm_for_sequence_regression( # s1 model
+            args.pretrain,
+            "reward_new",
+            use_flash_attention_2=args.flash_attn,
+            bf16=args.quantized_type,
+            load_in_4bit=args.load_in_4bit,
+            lora_rank=args.lora_rank,
+            lora_alpha=args.lora_alpha,
+            target_modules=args.target_modules,
+            ds_config=strategy.get_ds_train_config(is_actor=False),
+            init_value_head=args.max_epochs > 0,
+            output_attentions=args.output_attentions,
+            mode = args.mode
+        )
+        critic_model = Actor( # critic_model
+            args.pretrain,
+            use_flash_attention_2=args.flash_attn,
+            bf16=args.quantized_type=='bf16',
+            load_in_4bit=args.load_in_4bit,
+            lora_rank=args.lora_rank,
+            lora_alpha=args.lora_alpha,
+            target_modules=args.target_modules,
+            ds_config=strategy.get_ds_train_config(is_actor=True),
+        )
     if 's' in args.mode:
         model = get_llm_for_sequence_regression( # s1 model
             args.pretrain,

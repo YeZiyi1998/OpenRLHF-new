@@ -37,7 +37,7 @@ def train(args):
         lora_alpha=args.lora_alpha,
         target_modules=args.target_modules,
         ds_config=strategy.get_ds_train_config(is_actor=False),
-        init_value_head=True,
+        init_value_head=args.max_epochs > 0,
     )
 
     strategy.print("loaded..")
@@ -104,8 +104,8 @@ def train(args):
         max_epochs=args.max_epochs,
         loss=args.loss,
     )
-
-    trainer.fit(args)
+    if args.max_epochs > 0:
+        trainer.fit(args)
 
     test_dataloader = strategy.setup_dataloader(test_dataset, args.micro_train_batch_size, True, False, eval_dataset.collate_fn, sampler = 'use_none')
     local_rank = dist.get_rank()

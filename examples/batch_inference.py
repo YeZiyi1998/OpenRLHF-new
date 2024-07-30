@@ -14,6 +14,7 @@ from openrlhf.models import Actor, get_llm_for_sequence_regression
 from openrlhf.utils import blending_datasets, get_processor, get_strategy, get_tokenizer
 from openrlhf.datasets.utils import load_data
 import random
+import datasets
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 import multiprocessing
@@ -139,7 +140,21 @@ def batch_generate(args):
             data2 = load_data(args.dataset2, is_test=False, is_arrow = True, max_samples=args.max_samples)
             prompts_data = concatenate_datasets([prompts_data, data2])
             args.dataset2 = len(data2)
-
+    if args.exist_prompt is not None:
+        exist_prompt_lines = [json.loads(line) for line in open(args.exist_prompt).readlines()]
+        exist_prompt = [line['prompt'].lstrip("<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>human\n").rstrip("<|im_end|>\n") for line in exist_prompt_lines]
+        prompts_data_new = {}
+        removed_data = 0
+        for item in prompts_data:
+            if item['prompt'] not in exist_prompt:
+                for k in item.keys():
+                    if k not in prompts_data_new.keys():
+                        prompts_data_new[k] = []
+                    prompts_data_new[k].append(item[k])
+            else:
+                removed_data += 1
+        print('removed_data:', removed_data)
+        prompts_data = datasets.Dataset.from_dict(prompts_data_new)
     if args.iter is None:
         prompts_data = prompts_data.select(range(min(args.max_samples, len(prompts_data))))
     else:
@@ -159,7 +174,7 @@ def batch_generate(args):
 
     dist.barrier()
     N = args.best_of_n
-    output_dataset = []
+    
 
      # prepare models
     model = strategy.prepare(model)
@@ -168,8 +183,10 @@ def batch_generate(args):
     stop_tokens = {"<|im_end|>": [151645]}
     stopper = GenerationStopper(stop_tokens)
     
-    for prompts, meta_infos in pbar:
+    writer = jsonlines.open(args.output_path + str(strategy.get_rank()), mode="w")
+    for prompts, meta_infos in prompts_dataloader:
         # Conditional SFT inference
+        output_dataset = []
         if args.enable_ca:
             for i in range(len(prompts)):
                 prompts[i] += args.ca_prompt.strip() + " "
@@ -179,23 +196,36 @@ def batch_generate(args):
                 **inputs,
                 use_cache=True,
                 do_sample=not args.greedy_sampling,
+                # do_sample=False,
                 top_p=args.top_p,
-                early_stopping=True,
+                early_stopping=False,
                 max_new_tokens=args.max_new_tokens,
-                num_beams=1,
-                stopping_criteria=stopper.criteria,
+                num_beams=3, # change from 2 to 3
+                # stopping_criteria=stopper.criteria,
                 temperature=args.temperature,
                 repetition_penalty=args.repetition_penalty,
                 pad_token_id=tokenizer.pad_token_id,
                 eos_token_id=tokenizer.eos_token_id,
             )
-
+            
             inputs = tokenizer.batch_decode(inputs['input_ids'], skip_special_tokens=True)
             outputs = tokenizer.batch_decode(outputs, skip_special_tokens=True)
             idx = 0
             for prompt, output, input_ in zip(prompts, outputs, inputs):
                 output = output[len(input_):]
                 output_dataset.append({"prompt": prompt, "gen": output})
+                # output_length = torch.tensor([len(output)], dtype=torch.int, device="cuda")
+                # gathered_lengths = [torch.zeros(1, dtype=torch.int, device="cuda") for _ in range(dist.get_world_size())]
+                # dist.all_gather(gathered_lengths, output_length)        
+                # # 检查是否有任何一个设备生成的文本长度小于30
+                # if any(length.item() < 30 for length in gathered_lengths):
+                #     # 找到哪个rank的设备生成的文本长度小于30
+                #     for i, length in enumerate(gathered_lengths):
+                #         if length.item() < 30:
+                #             print(f"Rank {i} generated output with length < 30.")
+                #             import pdb
+                #             if i == dist.get_rank():
+                #                 pdb.set_trace()  # 插入断点
                 for k in ['tag', 'test_id', 'chosen']:
                     if k in meta_infos.keys():
                         try:
@@ -203,14 +233,10 @@ def batch_generate(args):
                         except:
                             output_dataset[-1][k] = meta_infos[k][idx]
                 idx += 1
-
+            writer.write_all(output_dataset)
+            writer._fp.flush()
+        pbar.update()
         dist.barrier()
-
-    with jsonlines.open(args.output_path + str(strategy.get_rank()), mode="w") as writer:
-        writer.write_all(output_dataset)
-
-    # wait unitl all processes generate done
-    dist.barrier()
 
     # concate multiple output files in rank 0
     if strategy.is_rank_0():
@@ -223,6 +249,8 @@ def batch_generate(args):
                     output_dataset.append(obj)
             os.remove(file)
         jsonlines.open(args.output_path, mode="w").write_all(output_dataset)
+        if removed_data > 0:
+            jsonlines.open(args.output_path, mode="a").write_all(exist_prompt_lines)
         # if args.dataset2 is not None:
         #     output_dataset, output_dataset2 = output_dataset[:-args.dataset2], output_dataset[-args.dataset2:]
         # jsonlines.open(args.output_path, mode="w").write_all(output_dataset)
@@ -365,7 +393,9 @@ if __name__ == "__main__":
     parser.add_argument("--reward_template", type=str, default=None)
     parser.add_argument("--enable_ca", action="store_true", default=False)
     parser.add_argument("--ca_prompt", type=str, default="<rm_score>: 5.00", help="Conditional SFT prompt")
+    parser.add_argument("--exist_prompt", type=str, default="None",)
 
+    
     args = parser.parse_args()
     if args.eval_task and args.eval_task == "generate":
         batch_generate(args)

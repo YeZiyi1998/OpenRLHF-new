@@ -96,35 +96,6 @@ class MyPromptDataset(Dataset):
         max_length: max length of input
     """
 
-    # def __init__(
-    #     self,
-    #     dataset,
-    #     tokenizer,
-    #     strategy,
-    #     input_template="Human: {}\nAssistant: ",
-    # ) -> None:
-    #     super().__init__()
-    #     self.strategy = strategy
-    #     self.tokenizer = tokenizer
-    #     #self.input_template = input_template
-    #     #input_key = getattr(self.strategy.args, "input_key", None)
-
-    #     self.prompts = []
-    #     self.meta_info = []
-    #     for data in tqdm(dataset, disable=not self.strategy.is_rank_0()):
-    #         tmp_meta = {}
-    #         for k in ['tag', 'test_id', 'chosen']:
-    #             if k in data.keys():
-    #                 tmp_meta[k] = data[k]
-    #         self.meta_info.append(tmp_meta)
-    #         #prompt = preprocess_data(data, input_template, input_key)
-    #         if 'Human' in input_template and 'Assistant' in input_template:
-    #             data = [{'role':'human', 'content':data['prompt']}, {'role':'assistant', 'content':data['gen']}]
-    #         else:
-    #             data = [{'role':'human', 'content':data['prompt']}, ]
-    #         prompt = process_prompt_data(data, self.tokenizer, input_template)
-    #         self.prompts.append(prompt)
-
     def __init__(
         self,
         dataset,

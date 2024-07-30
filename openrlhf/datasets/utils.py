@@ -46,14 +46,16 @@ def read_all_shard_and_evaluate(folder):
     acc_dict, acc_dict1, acc_dict2 = defaultdict(list), defaultdict(list), defaultdict(list)
     table, overall_acc = [], []
     overall_acc1, overall_acc2 = [], []
+    
     for fname in os.listdir(folder):
         if fname.endswith("json") or fname.endswith("jsonl"):
             with open(folder + "/" + fname, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     data = json.loads(line)
-                    for i in range(len(data['tag'])):
-                        tag = data["tag"][i]
+                    tag_k = 'tags' if 'tags' in data.keys() else 'tag'
+                    for i in range(len(data[tag_k])):
+                        tag = data[tag_k][i]
                         if 'acc' in data.keys():
                             acc = data["acc"][i]
                             acc_dict[tag].append(acc)

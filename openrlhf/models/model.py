@@ -302,7 +302,12 @@ def _get_reward_model2(base_pretrained_model, base_llm_model, mode, loss):
                         reward = reward1 + reward2
                 else:
                     reward = torch.gather(values, dim=1, index=eos_indices.view(-1, 1)).squeeze(1)
-               
+                # jiayudebug snippet
+                import pdb
+                import torch.distributed as dist
+                if dist.get_rank() == 0:
+                    pdb.set_trace()
+                dist.barrier()
                 if self.normalize_reward:
                     reward = (reward - self.mean) / self.std
 

@@ -1,4 +1,4 @@
-from .actor import Actor
+from .actor import Actor, Actor_with_cla
 from .loss import (
     DPOLoss,
     GPTLMLoss,
