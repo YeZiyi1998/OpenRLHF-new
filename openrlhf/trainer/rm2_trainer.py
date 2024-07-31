@@ -181,7 +181,6 @@ class RewardModelTrainer2(ABC):
             else:
                 return (torch.max(all_values, 1)[1] == (chosens)).sum().item() / len(chosens)
 
-
     def fit(self, args):
         # get eval and save steps
         if args.eval_steps == -1:

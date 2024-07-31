@@ -71,6 +71,8 @@ def process_prompt_data(data, tokenizer, input_template):
     prompt = tokenizer.apply_chat_template(data, add_generation_prompt=False, tokenize=False)
     if data[-1]['role'] in ['assistant','gpt'] and 'Human' in input_template and 'Assistant' in input_template:
         prompt = prompt[:-11]
+    elif 'Human' in input_template:
+        prompt += 'Assistant:'
     return prompt
 
 def process_data(data, tokenizer, input_template):

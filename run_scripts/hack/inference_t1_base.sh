@@ -4,12 +4,12 @@ unset https_proxy
 unset http_proxy
 export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
 
-EXP_NAME=Qwen_Critic_machine_length_hack_t1_inference_${2}
+EXP_NAME=Qwen_Critic_machine_base_t1_inference_${2}
 
 MODEL="/data2/rlhf/lixs/open_models/Qwen2-7B-Instruct/"
 File_NAME="Qwen_Critic_machine.jsonl" 
-DATA="/data2/rlhf/yzy/data/hack_data/length_hack_t1_inference/$2"
-
+DATA="/data2/rlhf/yzy/data/hack_data/base_t1_inference/$2"
+# exist_prompt=""
 save_path="/data2/rlhf/yzy/OpenRLHF-new/outputs/inference/${EXP_NAME}"
 BATCH_SIZE_PER_GPU=4
 LR=1e-5

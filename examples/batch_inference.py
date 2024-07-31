@@ -140,11 +140,11 @@ def batch_generate(args):
             data2 = load_data(args.dataset2, is_test=False, is_arrow = True, max_samples=args.max_samples)
             prompts_data = concatenate_datasets([prompts_data, data2])
             args.dataset2 = len(data2)
-    if args.exist_prompt is not None:
+    removed_data = 0
+    if args.exist_prompt != 'None':
         exist_prompt_lines = [json.loads(line) for line in open(args.exist_prompt).readlines()]
         exist_prompt = [line['prompt'].lstrip("<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>human\n").rstrip("<|im_end|>\n") for line in exist_prompt_lines]
         prompts_data_new = {}
-        removed_data = 0
         for item in prompts_data:
             if item['prompt'] not in exist_prompt:
                 for k in item.keys():
