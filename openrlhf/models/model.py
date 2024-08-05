@@ -247,7 +247,7 @@ def _get_reward_model2(base_pretrained_model, base_llm_model, mode, loss):
                 reward_dims = 2
             self.value_head = nn.Linear(config.hidden_size, reward_dims, bias=False)
             self.mode = mode
-            if '2' in mode:
+            if 'new' in mode:
                 self.value_head2 = nn.Linear(config.hidden_size, reward_dims, bias=True)
             # mean std
             self.normalize_reward = config.normalize_reward
@@ -302,12 +302,7 @@ def _get_reward_model2(base_pretrained_model, base_llm_model, mode, loss):
                         reward = reward1 + reward2
                 else:
                     reward = torch.gather(values, dim=1, index=eos_indices.view(-1, 1)).squeeze(1)
-                # jiayudebug snippet
-                import pdb
-                import torch.distributed as dist
-                if dist.get_rank() == 0:
-                    pdb.set_trace()
-                dist.barrier()
+
                 if self.normalize_reward:
                     reward = (reward - self.mean) / self.std
 

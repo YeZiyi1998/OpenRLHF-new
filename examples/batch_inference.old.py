@@ -5,29 +5,23 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import jsonlines
 from tqdm import tqdm
-import torch
-from torch import distributed as dist
 from transformers import AutoTokenizer
-# from vllm import LLM, SamplingParams
-# llm=LLM(model="../../../open_models/Qwen2-7B-Instruct/", tensor_parallel_size=4)
+from datasets import concatenate_datasets
 from openrlhf.datasets import PromptDataset, SFTDataset, MyPromptDataset
-# from vllm import LLM, SamplingParams
-# llm=LLM(model="../../../open_models/Qwen2-7B-Instruct/", tensor_parallel_size=4)
 from openrlhf.models import Actor, get_llm_for_sequence_regression
-# from vllm import LLM, SamplingParams
-# llm=LLM(model="../../../open_models/Qwen2-7B-Instruct/", tensor_parallel_size=4)
-# here not working
 from openrlhf.utils import blending_datasets, get_processor, get_strategy, get_tokenizer
 from openrlhf.datasets.utils import load_data
 import random
 import datasets
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
+import multiprocessing
 seed = 2021
 random.seed(seed)
 np.random.seed(seed)
 import json
 from gstop import GenerationStopper
+import gc
 
 def load_dataset(args, strategy, tokenizer):
     if os.path.exists(os.path.join(args.dataset, 'dataset_dict.json')):
@@ -35,13 +29,11 @@ def load_dataset(args, strategy, tokenizer):
             if idx == 0:
                 prompts_data = load_data(os.path.join(args.dataset, split), is_test=False, is_arrow = True)
             else:
-                from datasets import concatenate_datasets
                 prompts_data = concatenate_datasets([prompts_data, load_data(os.path.join(args.dataset, split), is_test=False, is_arrow = True)])
     else:
         prompts_data = load_data(args.dataset, is_test=False, is_arrow = True)
         if args.dataset2 is not None:
             data2 = load_data(args.dataset2, is_test=False, is_arrow = True, max_samples=args.max_samples)
-            from datasets import concatenate_datasets
             prompts_data = concatenate_datasets([prompts_data, data2])
             args.dataset2 = len(data2)
     removed_data = 0
@@ -87,10 +79,6 @@ def batch_generate_vllm(args):
     # configure tokenizer
     tokenizer = AutoTokenizer.from_pretrained(args.pretrain, trust_remote_code=True)
 
-     # configure model
-    print('loading llm.................')
-    llm = LLM(model=args.pretrain, tensor_parallel_size=args.tp_size, trust_remote_code=True, seed=args.seed)
-
     # Create a sampling params object.
     sampling_params = SamplingParams(
         max_tokens=args.max_new_tokens,
@@ -104,6 +92,9 @@ def batch_generate_vllm(args):
     prompts = prompts_dataset.prompts
     meta_infos = prompts_dataset.meta_info
 
+    # configure model
+    print('loading llm.................')
+    llm = LLM(model=args.pretrain, tensor_parallel_size=args.tp_size, trust_remote_code=True, seed=args.seed)
 
     # Conditional SFT inference
     if args.enable_ca:
@@ -129,8 +120,9 @@ def batch_generate_vllm(args):
     process(prompts, meta_infos, llm, jsonlines.open(args.output_path, mode="w"))
 
 def batch_generate(args):
+    import torch
+    from torch import distributed as dist
     from deepspeed.accelerator import get_accelerator
-    import gc
     gc.collect()
     get_accelerator().empty_cache()
     # configure strategy
@@ -154,7 +146,6 @@ def batch_generate(args):
         return {k: v.to(torch.cuda.current_device()) for k, v in batch.items()}
     
     prompts_dataset, removed_data = load_dataset(args, strategy, tokenizer=tokenizer)
-
     prompts_dataloader = strategy.setup_dataloader(
         prompts_dataset, args.micro_batch_size, True, False, drop_last=False # sampler ='use_none'??
     )
@@ -166,6 +157,7 @@ def batch_generate(args):
     dist.barrier()
     N = args.best_of_n
     
+
      # prepare models
     model = strategy.prepare(model)
     model.eval()
@@ -179,18 +171,18 @@ def batch_generate(args):
         output_dataset = []
         if args.enable_ca:
             for i in range(len(prompts)):
-                prompts[i] += args.ca_prompt.strip() + " "   
-        inputs = tokenize_fn(prompts)   
+                prompts[i] += args.ca_prompt.strip() + " "
+        inputs = tokenize_fn(prompts)
         for _ in range(N):
-            # torch.manual_seed(torch.seed() + _) 
             outputs = model.model.generate(
                 **inputs,
                 use_cache=True,
                 do_sample=not args.greedy_sampling,
+                # do_sample=False,
                 top_p=args.top_p,
                 early_stopping=False,
                 max_new_tokens=args.max_new_tokens,
-                num_beams=args.num_beams, 
+                num_beams=3, # change from 2 to 3
                 # stopping_criteria=stopper.criteria,
                 temperature=args.temperature,
                 repetition_penalty=args.repetition_penalty,
@@ -198,10 +190,10 @@ def batch_generate(args):
                 eos_token_id=tokenizer.eos_token_id,
             )
             
-            inputs2 = tokenizer.batch_decode(inputs['input_ids'], skip_special_tokens=True)
+            inputs = tokenizer.batch_decode(inputs['input_ids'], skip_special_tokens=True)
             outputs = tokenizer.batch_decode(outputs, skip_special_tokens=True)
             idx = 0
-            for prompt, output, input_ in zip(prompts, outputs, inputs2):
+            for prompt, output, input_ in zip(prompts, outputs, inputs):
                 output = output[len(input_):]
                 if 'Human' in args.input_template and 'Assistant' not in args.input_template:
                     output = 'Assistant:' + output
@@ -213,8 +205,8 @@ def batch_generate(args):
                         except:
                             output_dataset[-1][k] = meta_infos[k][idx]
                 idx += 1
-        writer.write_all(output_dataset)
-        writer._fp.flush()
+            writer.write_all(output_dataset)
+            writer._fp.flush()
         pbar.update()
         dist.barrier()
 
@@ -231,6 +223,12 @@ def batch_generate(args):
         jsonlines.open(args.output_path, mode="w").write_all(output_dataset)
         if removed_data > 0:
             jsonlines.open(args.output_path, mode="a").write_all(exist_prompt_lines)
+        # if args.dataset2 is not None:
+        #     output_dataset, output_dataset2 = output_dataset[:-args.dataset2], output_dataset[-args.dataset2:]
+        # jsonlines.open(args.output_path, mode="w").write_all(output_dataset)
+        # if args.dataset2 is not None:
+        #     jsonlines.open(args.output_path+'.2', mode="w").write_all(output_dataset2)
+
 
 def batch_rm_inference(args):
     # configure strategy
@@ -343,14 +341,12 @@ if __name__ == "__main__":
     parser.add_argument("--prompt_max_len", type=int, default=4096)
     parser.add_argument("--greedy_sampling", action="store_true", default=False)
     parser.add_argument("--top_p", type=float, default=0.9)
-    parser.add_argument("--top_k", type=float, default=20)
     parser.add_argument("--temperature", type=float, default=1.0)
     parser.add_argument("--repetition_penalty", type=float, default=1.2)
     parser.add_argument("--best_of_n", type=int, default=1)
     parser.add_argument("--input_template", type=str, default="Human:\n{}\nAssistant:\n")
     parser.add_argument("--max_new_tokens", type=int, default=1024)
     parser.add_argument("--length_penalty", type=float, default=1.5)
-    parser.add_argument("--num_beams", type=float, default=3)
     parser.add_argument(
         "--post_processor",
         type=str,

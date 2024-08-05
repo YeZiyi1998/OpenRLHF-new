@@ -110,7 +110,7 @@ def train(args):
             if type(line['prompt']) == list:
                 p2g[line['prompt'][0]['value']] = line['gen']
             else:
-                p2g[line['prompt'].lstrip("<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>human\n").rstrip("<|im_end|>\n")] = line['gen']
+                p2g[line['prompt'].lstrip("<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>human\n").rstrip('Assistant:').rstrip("<|im_end|>\n")] = line['gen']
         dataset_list = [train_data, eval_data, test_data]
         for idx, data in enumerate(dataset_list):
             bug_rate = []
@@ -124,10 +124,14 @@ def train(args):
                     new_data['gen'][-1] = p2g[data[i]['prompt']] if len(p2g[data[i]['prompt']].strip()) > 0 else 'assistant'
                     bug_rate.append(0)
                 else:
-                    new_data['gen'][-1] = 'assistant'
+                    new_data['gen'][-1] = 'Assistant:'
                     bug_rate.append(1)
             dataset_list[idx] = Dataset.from_dict(new_data)
             # length_list = ([len(tokenizer.encode(item)) for item in new_data['gen']])
+        # import pdb
+        # if dist.get_rank() == 0:
+        #     pdb.set_trace()
+        # dist.barrier()
         train_data, eval_data, test_data = dataset_list
         print('bug_rate: ', np.mean(bug_rate))
         if np.mean(bug_rate) > 0.1:

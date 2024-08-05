@@ -1,8 +1,6 @@
 from torch.utils.data import Dataset
 from tqdm import tqdm
 from .utils import exist_and_not_none
-import concurrent.futures
-import multiprocessing
 
 def preprocess_data(data, input_template=None, input_key=None) -> str:
     # custom dataset
@@ -119,6 +117,8 @@ class MyPromptDataset(Dataset):
         #     return
 
         if multi_thread:
+            import concurrent.futures
+            import multiprocessing
             # 多进程处理
             manager = multiprocessing.Manager()
             prompts = manager.list()

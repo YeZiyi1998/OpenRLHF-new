@@ -37,6 +37,11 @@ def exist_and_not_none(d, key):
     return key in d and d[key] is not None
 
 def read_all_shard_and_evaluate(folder):
+    # # jiayudebug snippet
+    # import pdb
+    # if dist.get_rank() == 0:
+    #     pdb.set_trace()
+    # dist.barrier()
     from collections import defaultdict
     import numpy as np
     import pandas as pd
@@ -53,7 +58,7 @@ def read_all_shard_and_evaluate(folder):
                 lines = f.readlines()
                 for line in lines:
                     data = json.loads(line)
-                    tag_k = 'tags' if 'tags' in data.keys() else 'tag'
+                    tag_k = 'tags' if 'tags' in data.keys() and len(data['tags']) > 0 else 'tag'
                     for i in range(len(data[tag_k])):
                         tag = data[tag_k][i]
                         if 'acc' in data.keys():
